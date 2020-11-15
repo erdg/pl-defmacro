@@ -9,7 +9,7 @@ Write Common Lisp style macros in PicoLisp for fun and profit (but mostly for fu
             (prog ",@"Body) ) )           (progn ,@Body) )
 ```
 
-_*squints*_ Exactly the same!
+Exactly the same! :grin:
 
 ### Testing
 
@@ -130,10 +130,10 @@ Which doesn't even compute. We better adjust for (an average 2.21% per year) inf
 
 ```
 : (de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
-   (format 
+   (format
       (a+ (any (total-cost-of-eating-at-a-restaurant-in-massachusetts MenuPrice) (*/ it 0.8 1.0)))
       *Scl ) )
--> total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 
+-> total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020
 
 : (total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 7.95)
 -> "17.19"
@@ -177,7 +177,7 @@ This version of `defanaph` can be used on any function, so long as that function
 
 ### Explanation
 
-How does this work? 
+How does this work?
 
 ### cl-backquote-form
 
