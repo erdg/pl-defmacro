@@ -134,7 +134,7 @@ Apparently you could get a meal in a restaurant in massachusetts for $7.95 in 19
 -> "9.55"
 ```
 
-Does not compute. We better adjust for (an average 2.21% per year) inflation (yielding ~80% cummulative change from 1993 to 2020).
+Does not compute. We better adjust for (an average 2.21% per year rate of) inflation (yielding ~80% cummulative change from 1993 to 2020).
 
 ```
 : (de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
