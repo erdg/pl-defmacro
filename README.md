@@ -119,14 +119,14 @@ Now we can figure out the total cost of eating at a restaurant in Massachusetts 
 -> total-cost-of-eating-at-a-restaurant-in-massachusetts
 ```
 
-Apparently you could get a meal in a restaurant in massachusetts for $7.95 in 1993
+Apparently you could get a meal in a restaurant in massachusetts for $7.95 in 1993?
 
 ```
 : (total-cost-of-eating-at-a-restaurant-in-massachusetts 7.95)
 -> "9.55"
 ```
 
-Which doesn't even compute. We better adjust for (an average 2.21% per year) inflation (yielding ~80% cummulative change from 1993 to 2020).
+Does not compute. We better adjust for (an average 2.21% per year) inflation (yielding ~80% cummulative change from 1993 to 2020).
 
 ```
 : (de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
