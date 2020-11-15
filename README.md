@@ -74,7 +74,7 @@ Now wouldn't it be neat if we had an anaphoric version of `list`, so we could do
 
 ```
 : (alist 2 (+ it 2) (+ it 2) (+ it 2))
--> (2 4 6 8)   # who do we appreciate? Common Lisp macros!
+-> (2 4 6 8) # who do we appreciate? Common Lisp macros!
 ```
 
 It sure would.
