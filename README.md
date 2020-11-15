@@ -243,9 +243,9 @@ And that would be fine.
 
 But after you write a couple macros in this style you realize that most of it is boilerplate code.
 
-PicoLisp macros tend to use a variable number of unevaluated arguments, `Lst` in the example above. The `let` form destructures this list to the named parameters we are going to use in our macro. And then we `eval` a `cl-backquote-form` with the parameters filled in.
+PicoLisp macros tend to use a variable number of unevaluated arguments (`Lst` in the example above). The `let` form destructures this list to the named parameters we are going to use in our macro. And then we `eval` a `cl-backquote-form` with the parameters filled in.
 
-`defmacro` simply writes that boilerplate code for us. If we look at the definition of `defmacro`, we can see the similarities to the definition of `aif%` above.
+`defmacro` simply writes the boilerplate code for us. If we look at the definition of `defmacro`, we can see the similarities to the definition of `aif%` above.
 
 ```
 (de defmacro Lst
