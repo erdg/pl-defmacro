@@ -175,9 +175,7 @@ Notice the code duplication between the definitions of `alist` and `a+`. Wouldn'
 
 This version of `defanaph` can be used on any function, so long as that function evaluates all its arguments. For example, `defanaph` may not be used to define an anaphoric `setq`, because `setq` does not evaluate its first argument. `defanaph` expects its only argument to be the name of an existing function preceeded by an "a".
 
-### Explanation
-
-How does this work?
+## Explanation
 
 ### cl-backquote-form
 
