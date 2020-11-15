@@ -9,9 +9,9 @@ Write Common Lisp style macros in PicoLisp for fun and profit (but mostly for fu
             (prog ",@"Body) ) )           (progn ,@Body) )
 ```
 
-\**squints*\* Exactly the same! :grin:
+\**squints*\* Exactly the same!
 
-> **Note** - its a testament to the awesomeness of this library that GitHub thinks this repo is 73.6% Common Lisp and 26.4% PicoLisp code
+> **PLEASE NOTE** that GitHub thinks this repo is 73.6% Common Lisp code and 26.4% PicoLisp code. :grin:
 
 ### Testing
 
