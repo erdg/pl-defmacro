@@ -199,7 +199,7 @@ This version of `defanaph` can be used on any function, so long as that function
 
 `cl-backquote-form` accomplishes this by a bunch of `macro` hacking (see source). The basic premise is to use a `macro` to transform a backquote form (see `_walk`) into the standard PicoLisp `macro` idioms (`^` splicing, etc.) and pass _that_ to `macro` again for the substitutions.
 
-So the above a `cl-backquote-form` call would be transformed to
+So the above a `cl-backquote-form` call is transformed to
 
 ```
 (let [X 2  L (3 4 5)]
