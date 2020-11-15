@@ -9,7 +9,7 @@ Write Common Lisp style macros in PicoLisp for fun and profit (but mostly for fu
             (prog ",@"Body) ) )           (progn ,@Body) )
 ```
 
-*squints* Exactly the same!
+_*squints*_ Exactly the same!
 
 ### Testing
 
