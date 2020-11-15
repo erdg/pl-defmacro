@@ -21,11 +21,12 @@ defmacro.l -- all tests passed
 -> T
 ```
 
-Hopefully that's the case on your machine too.
+Hopefully that's the case on your machine too. `tests.l` also contains all the functions defined below, so you don't need to type in the definitions as you follow along.
 
 ## Usage
 
 Let's say you're writing some Common Lisp code and you're slightly annoyed because the language doesn't offer the convenient `@`-result like PicoLisp does. No problem - thanks to the power of the Common Lisp macro system, we can easily create these abstractions.
+
 ```
 ### from On Lisp (p. 191)
 
