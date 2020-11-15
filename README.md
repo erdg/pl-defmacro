@@ -59,17 +59,22 @@ it plus two is 4
             (T "`"(aif ","(car Args) (aand ",@"(cdr Args)))) ) )
 -> aand
 
-: (aand (+ 1 1) (+ it 2) (+ it 4))
--> 8
+: (aand (+ 1 2) (+ it 3) (+ it 4))
+-> 10
 ```
 
-Back on track!
+Just like PicoLisp!
+
+```
+: (and (+ 1 2) (+ @ 3 (+ @ 4)))
+-> 10
+```
 
 Now wouldn't it be neat if we had an anaphoric version of `list`, so we could do something like this?
 
 ```
-: (alist 2 (+ 2 it) (+ 2 it) (+ 2 it))
--> (2 4 6 8)   # who do we appreciate? Common Lisp macros
+: (alist 2 (+ it 2) (+ it 2) (+ it 2))
+-> (2 4 6 8)   # who do we appreciate? Common Lisp macros!
 ```
 
 It sure would.
