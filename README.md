@@ -170,11 +170,32 @@ Notice the code duplication between the definitions of `alist` and `a+`. Wouldn'
 
 (de pop-symbol (Sym)
    (any (pack (cdr (chop Sym)))) )
+```
 
+Now we can define `alist` with a simple
+
+```
+: (defanaph alist)
+# alist redefined
+-> alist
+
+# same same
+: (alist 2 (+ it 2) (+ it 2) (+ it 2))
+-> (2 4 6 8)
+```
+
+Any other *normal* function works too.
+
+```
 : (defanaph amapcar)
 -> amapcar
 
 # super useful!
+: (amapcar +
+   (list (it 1 2 3) (it 4 5 6) (it 7 8 9))
+   (1 2 3) )
+-> (7 17 27)
+
 : (amapcar *
    (list (it 1 2 3) (it 4 5 6) (it 7 8 9))
    (append it (21 23 25)) )
