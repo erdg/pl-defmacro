@@ -88,7 +88,7 @@ It sure would.
          "`"(list ",@"Syms) ) ) )
 ```
 
-And how about an anaphoric version of '+'? You betcha!
+And how about an anaphoric version of `+`? You betcha!
 
 ```
 ### from On Lisp (p. 219)
