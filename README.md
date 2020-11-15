@@ -139,7 +139,7 @@ Does not compute. We better adjust for (an average 2.21% per year) inflation (yi
 -> "17.19"
 ```
 
-Okay, that makes sense. Anywho, I digest - err, di*gress*.
+Okay, that makes sense. But I digest - err, di*gress*.
 
 Notice the code duplication between the definitions of `alist` and `a+`. Wouldn't it be nice to extract this pattern so we can easily create anaphoric versions of other functions? What we need is a macro-writing macro!
 
