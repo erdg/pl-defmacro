@@ -138,7 +138,7 @@ Does not compute. We better adjust for (an average 2.21% per year) inflation (yi
 ```
 : (de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
    (format
-      (a+ (any (total-cost-of-eating-at-a-restaurant-in-massachusetts MenuPrice) (*/ it 0.8 1.0)))
+      (a+ (any (total-cost-of-eating-at-a-restaurant-in-massachusetts MenuPrice)) (*/ it 0.8 1.0))
       *Scl ) )
 -> total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020
 
