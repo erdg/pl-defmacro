@@ -15,7 +15,7 @@
 (de _deflate (Lst)
    (make
       (for L Lst
-         (if (pair L) (chain @) (link L) ) ) ) )
+         (if (pair L) (chain @) (link L)) ) ) )
 
 (de _walk X
    (recur (X Acc)
