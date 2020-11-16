@@ -6,12 +6,10 @@
                (eval
                   (cl-backquote-form ^ Body) ) ) ) ) ) )
 
-(de cl-backquote-form @Lst
+(de cl-backquote-form Lst
    (macro
       (macro
-         ^(list
-            (_deflate
-               (macro (_walk ^ @Lst))) ) ) ) )
+         (^(macro (_walk ^(_deflate Lst)))) ) ) )
 
 # remove one level of nesting, eg. (1 2 (3 4 (5 6))) -> (1 2 3 4 (5 6))
 (de _deflate (Lst)
