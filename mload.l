@@ -2,15 +2,16 @@
 
 # only loads one top level form per file for now
 (de mload (File)
-   (eval
-      (transform
-         (mread File) ) ) )
+   (mapc eval
+      (cdr
+         (transform
+            (mread File) ) ) ) )
 
 # read macro file ("File.m.l" by convention)
 (de mread (File)
    (in File
       (make
-         (while (read "-")
+         (while (read "-!%\"")
             (link @) ) ) ) )
 
 (de transform (Lst)
