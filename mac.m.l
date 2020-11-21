@@ -1,5 +1,6 @@
 (m
-   (de mac! Lst
+
+   (de mac!1 Lst
       (let [(Name Args . Body) Lst]
          (let [!s (filter !sym Args)  $s (mapcar !sym-to-$sym !s)]
             (evq
@@ -9,12 +10,47 @@
 
    (de mac$ Lst
       (let [(Name Args . Body) Lst]
-         (let [Syms (uniq (filter $sym (flat Body)))]
+         (let [$Syms (uniq (filter $sym (flat Body)))]
             (evq
                `(de ,Name Lst
-                  (let [,Args Lst  ,(mapcan '((S) (quasi `(,S (box)))) Syms)]
+                  (let [,Args Lst  ,(mapcan '((S) (quasi `(,S (box)))) $Syms)]
                      (evq
                         ,@Body ) ) ) ) ) ) )
+
+   (de mac! Lst
+      (let [(Name Args . Body) Lst]
+         (let [!Syms (filter !sym Args)  $Syms (mapcar !sym-to-$sym !Syms)]
+            (evq
+               `(de ,Name Lst
+                  (let [,Args Lst]
+                     (let ,(mapcan '((S) (quasi `(,S (box)))) (uniq (filter $sym (flat Body))))
+                        (evq
+                           '(let ,,(mapcan list (list ,@$Syms) (list ,@!Syms))
+                              (evq
+                                 ,@Body ) ) ) ) ) ) ) ) ) )
+
+   (de mac!2 Lst
+      (let [(Name Args . Body) Lst]
+         (let [!Syms (filter !sym Args)  $Syms (mapcar !sym-to-$sym !Syms)]
+            (evq
+               `(de ,Name Lst
+                  (let [,Args Lst]
+                     (let ,(mapcan '((S) (quasi `(,S (box)))) (uniq (filter $sym (flat Body))))
+                        (evq
+                           ,`(let ,,(mapcan list (list ,@$Syms) (list ,@!Syms))
+                              ,@Body ) ) ) ) ) ) ) ) )
+
+   (de mac!3 Lst
+      (let [(Name Args . Body) Lst]
+         (let [!Syms (filter !sym Args)  $Syms (mapcar !sym-to-$sym !Syms)]
+            (evq
+               `(de ,Name Lst
+                  (let [,Args Lst]
+                     (let ,(mapcan '((S) (quasi `(,S (box)))) (uniq (filter $sym (flat Body))))
+                        (evq
+                           ,`(let ,,(mapcan list (list ,@$Syms) (list ,@!Syms))
+                              (evq
+                                 ,`,@Body ) ) ) ) ) ) ) ) ) )
 
    (de !sym (S)
       (and (sym? S)
