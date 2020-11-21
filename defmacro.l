@@ -9,15 +9,24 @@
 # abbrevs
 (def 'mac defmacro)
 
+# dumb name, use 'quasiquote' instead
+# too lazy to refactor the tests
 (de cl-backquote-form Lst
    (macro
       (macro
          (^(macro (_walk ^(_deflate Lst)))) ) ) )
 
-# abbrevs
 (def 'quasiquote cl-backquote-form)
 (def 'quasi quasiquote)
 (def 'qq quasi)
+(def 'q  qq)
+
+(de eval-quasiquote Lst
+   (macro
+      (eval
+         (quasiquote ^ Lst) ) ) )
+
+(def 'evq eval-quasiquote)
 
 # remove one level of nesting, eg. (1 2 (3 4 (5 6))) -> (1 2 3 4 (5 6))
 (de _deflate (Lst)
