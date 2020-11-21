@@ -11,7 +11,7 @@
 (de mread (File)
    (in File
       (make
-         (while (read "-!%\"")
+         (while (read "_-!?<>$")
             (link @) ) ) ) )
 
 (de transform (Lst)
@@ -50,10 +50,3 @@
          (= "ml"
             (pack (tail 2 (split (chop X) ".")))) )
       Lst ) )
-
-# list macros in current directory
-
-(de mls ()
-   (mapcar
-      '((X) (any (pack (car (split (chop X) ".")))))
-      (mfiles (dir)) ) )
