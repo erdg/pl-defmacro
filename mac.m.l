@@ -18,13 +18,13 @@
 
    (de mac! Lst
       (let [(Name Args . Body) Lst]
-         (let [!Args (!syms-in Args) $Args (!syms-to-$syms !Args)]
+         (let [!Syms (!syms-in Args)  $Syms (!syms-to-$syms !Syms)]
             (evq
                `(de ,Name Lst
                   (let [,Args Lst]
                      (let ,[mapbox ($syms-in Body)]
-                        ~(enq
-                           `(let ,,[letargs (list ,@$Args) (list ,@!Args)]
+                        ~(evqr
+                           `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
                               (evq ,@Body ) ) ) ) ) ) ) ) ) )
 
    (de maq! Lst
@@ -34,7 +34,7 @@
                `(de ,Name Lst
                   (let [,Args Lst]
                      (let ,[mapbox ($syms-in Body)]
-                        ~(enq
+                        ~(evqr
                            `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
                               ,@Body ) ) ) ) ) ) ) ) )
 
