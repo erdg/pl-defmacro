@@ -1,42 +1,26 @@
 (m
 
    (de mac Lst
-      (let [(Nm Args . Body) Lst]
-         (evq
-            `(macro
-               (de ,Nm Lst
-                  (let [,Args Lst]
-                     (evq ,@Body) ) ) ) ) ) )
+      ~(leq [(Name Args . Body) Lst]
+         `(de ,Name Lst
+            ~(leq [,Args Lst]
+               ,@Body ) ) ) )
 
    (de mac$ Lst
-      (let [(Name Args . Body) Lst]
-         (evq
-            `(de ,Name Lst
-               (let [,Args Lst]
-                  (let ,[mapcan ~(q `(,Q1 (box))) ($syms-in Body)]
-                     (evq ,@Body ) ) ) ) ) ) )
+      ~(leq [(Name Args . Body) Lst]
+         `(de ,Name Lst
+            (let [,Args Lst]
+               ~(leq ,[mapbox ($syms-in Body)]
+                  ,@Body ) ) ) ) )
 
    (de mac! Lst
       (let [(Name Args . Body) Lst]
-         (let [!Syms (!syms-in Args)  $Syms (!syms-to-$syms !Syms)]
-            (evq
-               `(de ,Name Lst
-                  (let [,Args Lst]
-                     (let ,[mapbox ($syms-in Body)]
-                        ~(evqr
-                           `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
-                              (evq ,@Body ) ) ) ) ) ) ) ) ) )
-
-   (de maq! Lst
-      (let [(Name Args . Body) Lst]
-         (let [!Syms (!syms-in Args)  $Syms (!syms-to-$syms !Syms)]
-            (evq
-               `(de ,Name Lst
-                  (let [,Args Lst]
-                     (let ,[mapbox ($syms-in Body)]
-                        ~(evqr
-                           `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
-                              ,@Body ) ) ) ) ) ) ) ) )
+         ~(leq [!Syms (!syms-in Args) $Syms (!syms-to-$syms !Syms)]
+            `(de ,Name Lst
+               (let [,Args Lst]
+                  ~(leq ,[mapbox ($syms-in Body)]
+                     ~(leq* ,,[letargs (list ,@$Syms) (list ,@!Syms)]
+                        ,@Body ) ) ) ) ) ) )
 
    (de !sym (S)
       (and (sym? S)
@@ -68,25 +52,18 @@
 
 )
 
-### QUICK DOCS
+##### QUICK DOCS
 #
 # mac$ - defmacro/g! from Let Over Lambda
 #
-# maq! - defmacro! with an implicit backquote on the body
-#
-#     e.g. (maq! square (!X) (* ,$X ,$X))
-#
 # mac! - defmacro! with an explicit backquote on the body
-#
-#     e.g. (mac! square (!X) `(* ,$X ,$X))
-#
 #
 # See 'evolution-of-macbang.l' for a more detailed explanation
 #
 ###
 
 
-### TESTING
+##### TESTING
 #
 # : (load "mac.tests.l")
 #
