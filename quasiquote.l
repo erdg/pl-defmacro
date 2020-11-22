@@ -25,12 +25,43 @@
          (quasiquote ^ Lst) ) ) )
 
 
-### read-macros
+### read-macros for m.l files
 
-# evqr - alternate notation for nested quasiquotes
+# ~(leq [X 2 Y 3]
+#    `(* ,X ,Y) )
 #
-# ~(evqr
-#     `(let ...) )
+(de let-eval-quasiquote-readmacro Lst
+   (let [(Args . Body) (leqargs Lst)]
+      (macro
+         '((let ^ Args (eval-quasiquote ^ Body ))) ) ) )
+
+(de leqargs (Lst)
+   (let [L (_leqargs Lst)
+         I (index (find pair L) L)
+         Args (head I L)
+         Body (tail (- I) L)]
+      (macro '((^ Args) ^ Body)) ) )
+
+(de _leqargs (Lst)
+   (if (atom (car Lst))
+      (cons (car Lst) (_leqargs (cdr Lst)))
+      Lst ) )
+
+
+# leq* is a more concise version of the following 'evq*' example
+#
+# ~(leq* ,,[letargs (list ,@Xs) (list ,@Ys)]
+#     ... )
+
+(de let-eval-quasiquote-star-readmacro Lst
+   (let [(Args . Body) (leqargs Lst)]
+      (macro
+         '(",""`"(let ^ Args (eval-quasiquote ^ Body ))) ) ) )
+
+# evq* - alternate notation for nested quasiquotes
+#
+# ~(evq*
+#     `(let ,,[...]) )
 #
 (de eval-quasiquote-readmacro Lst
    (macro '((evq "," ^ Lst))) )
