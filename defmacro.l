@@ -1,3 +1,5 @@
+(load "utils.l")
+
 (de defmacro Lst
    (let [(@Nm @Args . Body) Lst]
       (macro
@@ -6,36 +8,13 @@
                (eval
                   (cl-backquote-form ^ Body) ) ) ) ) ) )
 
-# abbrevs
-(def 'mac defmacro)
-
-# dumb name, use 'quasiquote' instead
-# too lazy to refactor the tests
 (de cl-backquote-form Lst
    (macro
       (macro
-         (^(macro (_walk ^(_deflate Lst)))) ) ) )
-
-(def 'quasiquote cl-backquote-form)
-(def 'quasi quasiquote)
-(def 'qq quasi)
-(def 'q  qq)
-
-(de eval-quasiquote Lst
-   (macro
-      (eval
-         (quasiquote ^ Lst) ) ) )
-
-(def 'evq eval-quasiquote)
-
-# remove one level of nesting, eg. (1 2 (3 4 (5 6))) -> (1 2 3 4 (5 6))
-(de _deflate (Lst)
-   (make
-      (for L Lst
-         (if (pair L) (chain @) (link L)) ) ) )
+         (^(macro (_walk ^(deflate Lst)))) ) ) )
 
 (de _walk X
-   (recur (X Acc)
+   (recur (X Acc BQ) # backquote encountered?
       (ifn X
          (flip Acc)
          (if (pair (car X))
@@ -44,6 +23,11 @@
                (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
             (case (car X)
                ("`"  (recurse (cdr  X) (cons (lit 'quote) Acc)) )
+               # experimental stuff to try to get nested backquotes to "work"
+               # ("`"  (ifn BQ # backwards because recursion
+               #          (recurse (cdr X) (cons (car X) Acc)) # ignore it
+               #          (on BQ)
+               #          (recurse (cdr  X) (cons (lit 'quote) Acc)) ) )
                (","  (recurse (cddr X) (cons (list 'list (cadr X)) '^ Acc)) )
                (",@" (recurse (cddr X) (cons (cadr X) '^ Acc)) )
                (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) )
