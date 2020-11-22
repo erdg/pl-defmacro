@@ -18,7 +18,7 @@
 (de mread (File)
    (in File
       (make
-         (while (read "_-!?<>$")
+         (while (read "_-!?<>$*")
             (link @) ) ) ) )
 
 (de transform (Lst)
