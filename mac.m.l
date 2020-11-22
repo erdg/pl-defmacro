@@ -1,5 +1,13 @@
 (m
 
+   (de mac Lst
+      (let [(Nm Args . Body) Lst]
+         (evq
+            `(macro
+               (de ,Nm Lst
+                  (let [,Args Lst]
+                     (evq ,@Body) ) ) ) ) ) )
+
    (de mac$ Lst
       (let [(Name Args . Body) Lst]
          (evq
