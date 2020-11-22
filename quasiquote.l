@@ -98,5 +98,7 @@
 ### abbrevs
 (def 'quasi quasiquote)
 (def 'qq    quasi)
+(def 'leq   let-eval-quasiquote-readmacro)
+(def 'leq*  let-eval-quasiquote-star-readmacro)
 (def 'evq   eval-quasiquote)
-(def 'evqr  eval-quasiquote-readmacro)
+(def 'evq*  eval-quasiquote-readmacro)
