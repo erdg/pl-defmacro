@@ -1,6 +1,12 @@
-(load "defmacro.l")
+(load "quasiquote.l" "utils.l")
 
-# only loads one top level form per file for now
+# mload - only loads one top level form per file, so the convention is to wrap
+# everything as
+#
+#  (m
+#     ...
+#  )
+#
 (de mload (File)
    (mapc eval
       (cdr
@@ -34,7 +40,9 @@
                         (recurse (cdr X) (cons (sym ",") Acc)) ) )
                (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) )
 
-# macro vi
+
+# working with mfiles
+
 (de mvi (Name)
    (let File (pack Name ".m.l")
       (call 'vim File)
