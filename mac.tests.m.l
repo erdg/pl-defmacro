@@ -1,29 +1,23 @@
 (m
 
-   (mac! nif! (!Expr Pos Zero Neg)
-      `(cond
-         ((gt0 ,$Expr) ,Pos)
-         ((=0 ,$Expr) ,Zero)
-         (T ,Neg) ) )
-
-   (mac!2 nif!2 (!Expr Pos Zero Neg)
-      (cond
-         ((gt0 ,$Expr) ,Pos)
-         ((=0 ,$Expr) ,Zero)
-         (T ,Neg) ) )
-
-   (mac!3 nif!3 (!Expr Pos Zero Neg)
-      (cond
-         ((gt0 ,$Expr) ,Pos)
-         ((=0 ,$Expr) ,Zero)
-         (T ,Neg) ) )
-
    (mac$ nif$ (Expr Pos Zero Neg)
       `(let ,$Res ,Expr
          (cond
             ((gt0 ,$Res) ,Pos)
             ((=0  ,$Res) ,Zero)
             (T ,Neg) ) ) )
+
+   (mac! nif! (!Expr Pos Zero Neg)
+      `(cond
+         ((gt0 ,$Expr) ,Pos)
+         ((=0 ,$Expr) ,Zero)
+         (T ,Neg) ) )
+
+   (maq! nif!2 (!Expr Pos Zero Neg)
+      (cond
+         ((gt0 ,$Expr) ,Pos)
+         ((=0 ,$Expr) ,Zero)
+         (T ,Neg) ) )
 
    (mac! square (!X)
       `(* ,$X ,$X) )
