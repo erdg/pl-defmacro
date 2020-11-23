@@ -27,13 +27,27 @@
 
 ### read-macros for m.l files
 
+# leq - create bindings for eval-quasiquote forms
+#
 # ~(leq [X 2 Y 3]
 #    `(* ,X ,Y) )
-#
+
 (de let-eval-quasiquote-readmacro Lst
    (let [(Args . Body) (leqargs Lst)]
       (macro
          '((let ^ Args (eval-quasiquote ^ Body ))) ) ) )
+
+# leq* - bindings in nested eval-quasiquote forms. used in macro-defining
+# macros.
+#
+#  (leq ,[...]          # ','  - computed at fn definition time
+#     ~(leq* ,,[...]    # ",,' - computed at defined fn's run time
+#     ... )
+
+(de let-eval-quasiquote-star-readmacro Lst
+   (let [(Args . Body) (leqargs Lst)]
+      (macro
+         '(",""`"(let ^ Args (eval-quasiquote ^ Body ))) ) ) )
 
 (de leqargs (Lst)
    (let [L (_leqargs Lst)
@@ -47,22 +61,35 @@
       (cons (car Lst) (_leqargs (cdr Lst)))
       Lst ) )
 
-
-# leq* is a more concise version of the following 'evq*' example
+# evq* - alternate notation for nested quasiquotes. all the following are the
+# same (pretty sure)
 #
-# ~(leq* ,,[letargs (list ,@Xs) (list ,@Ys)]
-#     ... )
-
-(de let-eval-quasiquote-star-readmacro Lst
-   (let [(Args . Body) (leqargs Lst)]
-      (macro
-         '(",""`"(let ^ Args (eval-quasiquote ^ Body ))) ) ) )
-
-# evq* - alternate notation for nested quasiquotes
+# ~(leq [...]
+#     `(...
+#        ~(leq
+#           ~(leq* ,,[...]
+#              ... ) ) ) )
 #
-# ~(evq*
-#     `(let ,,[...]) )
+#     vs
 #
+# ~(leq [...]
+#    `( ...
+#       ~(leq
+#          ~(evq*
+#              `(let ,,[...]
+#                 ... ) ) ) ) )
+#
+#     vs
+#
+#  (let
+#     (evq
+#        `( ...
+#           (let ,[...]
+#              (evq
+#                 '(let ,,[...]
+#                    ... ) ) ) ) ) )
+#
+
 (de eval-quasiquote-readmacro Lst
    (macro '((evq "," ^ Lst))) )
 
