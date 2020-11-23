@@ -96,12 +96,18 @@
 
 # shorthand for quasiquote functions
 #
-# ~(qfn (X) `(,(car X) ,(cadr X)))
+# ~(qfn (X Y) `(,(car X) ,(car Y)))
+#
+#  or
+#
+# ~(qfn `(,(car Q1) ,(car Q2)))
 #
 (de qfn Lst
-   (let [(Args . Body) Lst]
-      (macro
-         (list (lit '((^ Args) (quasi ^ Body)))) ) ) )
+   (if (= (car Lst) "`")
+      (macro (q ^ Lst))
+      (let [(Args . Body) Lst]
+         (macro
+            (list (lit '((^ Args) (quasi ^ Body)))) ) ) ) )
 
 # same as above, with anaphoric Qsyms
 #
