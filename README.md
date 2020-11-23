@@ -114,41 +114,6 @@ And how about an anaphoric version of `+`? You betcha!
          "`"(+ ",@"Syms) ) ) )
 ```
 
-Now we can figure out the total cost of eating at a restaurant in Massachusetts based on the listed menu price.
-
-```
-### from On Lisp (p. 219)
-: (scl 2)
-
-: (de total-cost-of-eating-at-a-restaurant-in-massachusetts (MenuPrice)
-   (format
-      (a+ MenuPrice (*/ it 0.05 1.0) (*/ it 3.0 1.0))
-      *Scl ) )
--> total-cost-of-eating-at-a-restaurant-in-massachusetts
-```
-
-Apparently you could get a meal in a restaurant in massachusetts for $7.95 in 1993?
-
-```
-: (total-cost-of-eating-at-a-restaurant-in-massachusetts 7.95)
--> "9.55"
-```
-
-Does not compute. We better adjust for (an average 2.21% per year rate of) inflation (yielding ~80% cummulative change from 1993 to 2020).
-
-```
-: (de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
-   (format
-      (a+ (any (total-cost-of-eating-at-a-restaurant-in-massachusetts MenuPrice)) (*/ it 0.8 1.0))
-      *Scl ) )
--> total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020
-
-: (total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 7.95)
--> "17.19"
-```
-
-Okay, that makes sense. But I digest - err, di*gress*.
-
 Notice the code duplication between the definitions of `alist` and `a+`. Wouldn't it be nice to extract this pattern so we can easily create anaphoric versions of other functions? What we need is a macro-writing macro!
 
 ```

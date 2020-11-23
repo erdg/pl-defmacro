@@ -42,17 +42,6 @@
 
 (scl 2)
 
-# super real world uses of 'a+'
-(de total-cost-of-eating-at-a-restaurant-in-massachusetts (Price)
-   (format
-      (a+ Price (*/ it 0.05 1.0) (*/ it 3.0 1.0))
-      *Scl ) )
-
-(de total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 (MenuPrice)
-   (format
-      (a+ (any (total-cost-of-eating-at-a-restaurant-in-massachusetts MenuPrice)) (*/ it 0.8 1.0))
-      *Scl ) )
-
 (defmacro alist Args (alist-expand Args NIL))
 
 (de alist-expand (Args Syms)
@@ -99,9 +88,6 @@
    (aand 1 (list it) (cons 2 it) (cons 3 it) (reverse it)) )
 
 (test 48 (a* 2 (+ 2 it) (+ 2 it)))
-
-(test "17.19"
-   (total-cost-of-eating-at-a-restaurant-in-massachusetts-in-1993-adjusted-for-2020 7.95) )
 
 (test (2 4 6) (alist 2 (+ 2 it) (+ 2 it)))
 
