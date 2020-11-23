@@ -14,7 +14,7 @@
          (transform
             (mread File) ) ) ) )
 
-# read macro file ("File.m.l" by convention)
+# read a macro file ("File.m.l" by convention)
 (de mread (File)
    (in File
       (make
@@ -30,16 +30,12 @@
    (recur (X Acc)
       (ifn X
          (flip Acc)
-         (if (pair (car X))
-            (if (atom (cdr @))
-               (recurse (cdr X) (cons (car X) Acc))
-               (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
-            (case (car X)
-               ("`"  (recurse (cdr  X) (cons (sym "`") Acc)) )
-               (","  (if (= (cadr X) "@")
-                        (recurse (cddr X) (cons (sym ",@") Acc))
-                        (recurse (cdr X) (cons (sym ",") Acc)) ) )
-               (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) )
+         (case (car X)
+            ("`"  (recurse (cdr  X) (cons (sym "`") Acc)) )
+            (","  (if (= (cadr X) "@")
+                     (recurse (cddr X) (cons (sym ",@") Acc))
+                     (recurse (cdr X) (cons (sym ",") Acc)) ) )
+            (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
 
 
 # working with mfiles
