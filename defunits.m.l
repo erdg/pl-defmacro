@@ -1,45 +1,60 @@
 (m
 
-   (mac defunits (Quantity Base . Units)
-      `(mac ,(symb 'unit-of- Quantity) ("Val" "Unit")
-         (* ,,"Val"
-            (case ,,"Unit"
+   (mac defunits1 (Quantity Base . Units)
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         (* ,,$Val
+            (case ,,$Unit
                (,Base 1)
                ,@(mapcar
-                     '((X) (quasi `(,(car X) ,(cadr X))))
+                     ~(q `(,(car Q1) ,(cadr Q1)))
                      (groups-of 2 Units) ) ) ) ) )
 
-   (defmacro defunits2 (Quantity Base . Units)
-      `(defmacro ,(symb 'unit-of- Quantity) ("Val" "Unit")
-         (* ,,"Val"
-            (case ,,"Unit"
+   (mac defunits (Quantity Base . Units)
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         (* ,,$Val
+            (case ,,$Unit
                (,Base 1)
                ,@(mapcar
-                     (lambda (X)
-                        (quasiquote
+                     ~(qfn (X)
+                        `(,(car X)
+                           ,(defunits-chaining
+                              (car X)
+                                 (cons
+                                    (quasi `(,Base 1))
+                                    (groups-of 2 Units) ) ) ) )
+                     (groups-of 2 Units) ) ) ) ) )
+
+   (mac defunits2 (Quantity Base . Units)
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         ~(evq*
+            `(* ,,$Val
+               (case ,,$Unit
+                  (,Base 1)
+                  ,@(mapcar
+                        ~(qfn (X)
                            `(,(car X)
                               ,(defunits-chaining
                                  (car X)
-                                 (cons
-                                    (quasiquote `(,Base 1))
-                                    (groups-of 2 Units) ) ) ) ) )
-                     (groups-of 2 Units) ) ) ) ) )
+                                    (cons
+                                       (quasi`(,Base 1))
+                                       (groups-of 2 Units) ) ) ) )
+                        (groups-of 2 Units) ) ) ) ) ) )
 
    (mac defunits3 (Quantity Base . Units)
-      `(mac ,(symb 'unit-of- Quantity) ("Val" "Unit")
-         (* ,,"Val"
-            (case ,,"Unit"
-               (,Base 1)
-               ,@(mapcar
-                     '((X)
-                        (quasiquote
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         ~(leq* []
+            (* ,,$Val
+               (case ,,$Unit
+                  (,Base 1)
+                  ,@(mapcar
+                        ~(qfn (X)
                            `(,(car X)
                               ,(defunits-chaining
                                  (car X)
-                                 (cons
-                                    (quasiquote `(,Base 1))
-                                    (groups-of 2 Units) ) ) ) ) )
-                     (groups-of 2 Units) ) ) ) ) )
+                                    (cons
+                                       (quasi`(,Base 1))
+                                       (groups-of 2 Units) ) ) ) )
+                        (groups-of 2 Units) ) ) ) ) ) )
 
    (de defunits-chaining (U Units)
       (let Spec (assoc U Units)
