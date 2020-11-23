@@ -2,18 +2,19 @@
 
    (de defmacro-with-boxes Lst
       (let [(Name Args . Body) Lst
-            Syms (uniq (filter sym!p (flat Body))) ]
+            Syms (uniq (filter !sym (flat Body))) ]
          (eval
             (quasiquote
-               `(de ,Name ,Args
-                  (let ,(mapcan
-                           '((S) (quasiquote `(,S (box))))
-                           Syms )
-                     (eval
-                        (quasiquote
-                           ,@Body ) ) ) ) ) ) ) )
+               `(de ,Name Lst
+                  (let [,Args Lst]
+                     (let ,(mapcan
+                              '((S) (quasiquote `(,S (box))))
+                              Syms )
+                        (eval
+                           (quasiquote
+                              ,@Body ) ) ) ) ) ) ) ) )
 
-   (de sym!p (S) (= "\"!\"" (last (chop S))))
+   (de !sym (S) (= '! (car (chop S))))
 
    (de flat (L) (fish atom L))
 
