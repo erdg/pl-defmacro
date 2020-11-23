@@ -56,7 +56,7 @@
 #
 # mac$ - defmacro/g! from Let Over Lambda
 #
-# mac! - defmacro! with an explicit backquote on the body
+# mac! - defmacro!
 #
 # See 'evolution-of-macbang.l' for a more detailed explanation
 #
@@ -68,4 +68,3 @@
 # : (load "mac.tests.l")
 #
 ###
-
