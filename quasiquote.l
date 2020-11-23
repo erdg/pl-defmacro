@@ -25,7 +25,7 @@
          (quasiquote ^ Lst) ) ) )
 
 
-### read-macros for m.l files
+### read-macros (for m.l files)
 
 # leq - create bindings for eval-quasiquote forms
 #
