@@ -5,6 +5,9 @@
 (de symb @
    (any (apply pack (rest))) )
 
+(de which (Fn L)
+   (index (find Fn L) L) )
+
 # remove one level of nesting, eg. (1 2 (3 4 (5 6))) -> (1 2 3 4 (5 6))
 (de deflate (Lst)
    (make
