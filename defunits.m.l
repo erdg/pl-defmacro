@@ -68,18 +68,4 @@
                         Units ) )
                   Chain ) ) ) ) )
 
-   (def 'lambda quote)
-
-   (de symb @
-      (any (apply pack (rest))) )
-
-   (de groups-of (N Src)
-      (if (=0 N) (err "zero length"))
-      (inc 'N)
-      (recur (Src Acc)
-         (let Rest (nth Src N)
-            (if (pair Rest)
-               (recurse Rest (cons (head (- N 1) Src) Acc))
-               (flip (cons Src Acc)) ) ) ) )
-
 )
