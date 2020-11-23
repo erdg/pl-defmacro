@@ -64,31 +64,31 @@
 # evq* - alternate notation for nested quasiquotes. all the following are the
 # same (pretty sure)
 #
-# ~(leq [...]
-#     `(...
-#        ~(leq
-#           ~(leq* ,,[...]
-#              ... ) ) ) )
+#     ~(leq [...]
+#         `(...
+#            ~(leq
+#               ~(leq* ,,[...]
+#                  ... ) ) ) )
 #
-#     vs
+#         vs
 #
-# ~(leq [...]
-#    `( ...
-#       ~(leq
-#          ~(evq*
-#              `(let ,,[...]
-#                 ... ) ) ) ) )
-#
-#     vs
-#
-#  (let
-#     (evq
+#     ~(leq [...]
 #        `( ...
-#           (let ,[...]
-#              (evq
-#                 '(let ,,[...]
-#                    ... ) ) ) ) ) )
+#           ~(leq
+#              ~(evq*
+#                  `(let ,,[...]
+#                     ... ) ) ) ) )
 #
+#         vs
+#
+#      (let
+#         (evq
+#            `( ...
+#               (let ,[...]
+#                  (evq
+#                     '(let ,,[...]
+#                        ... ) ) ) ) ) )
+
 
 (de eval-quasiquote-readmacro Lst
    (macro '((evq "," ^ Lst))) )
@@ -96,11 +96,13 @@
 
 # shorthand for quasiquote functions
 #
-# ~(qfn (X Y) `(,(car X) ,(car Y)))
+# if (car Lst) is a list, supply your own args
 #
-#  or
+#     ~(qfn (X Y) `(,(car X) ,(car Y)))
 #
-# ~(qfn `(,(car Q1) ,(car Q2)))
+#  else use Qsyms ((car Lst) is assumed to be "`")
+#
+#     ~(qfn `(,(car Q1) ,(car Q2)))
 #
 (de qfn Lst
    (if (= (car Lst) "`")
