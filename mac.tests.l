@@ -24,7 +24,7 @@
 (test 4 (aif 2 (+ 2 it)))
 (test 4 (awhen 2 (+ 2 it)))
 
-(defunits time s m 60 h (60 m) d (24 h) y (365))
+(defunits time s m 60 h (60 m) d (24 h) y (365 d))
 (test 3600 (unit-of-time 1 'h))
 
 (t (prinl "mac.m.l -- all tests passed"))
