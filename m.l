@@ -1,8 +1,7 @@
 (load "quasiquote.l" "utils.l")
 
 # mload - only loads one top level form per file, so the convention is to wrap
-# everything with the 'm' "macro". (NOTE 'm' is not actually defined, don't use
-# it in regular '.l' files)
+# everything with the 'm' "macro".
 #
 #  (m
 #     ...
