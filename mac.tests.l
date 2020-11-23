@@ -16,4 +16,15 @@
 (test 7 (let X 2 (add (inc 'X) (inc 'X))))
 (test 7 (let X 2 (add (inc 'X) (inc 'X))))
 
-(t (prinl "mac[!|$] -- all tests passed"))
+(test 10 (aand (+ 1 2) (+ 3 it) (+ 4 it)))
+
+(test (1 2 3)
+   (aand 1 (list it) (cons 2 it) (cons 3 it) (reverse it)) )
+
+(test 4 (aif 2 (+ 2 it)))
+(test 4 (awhen 2 (+ 2 it)))
+
+(defunits time s m 60 h (60 m) d (24 h) y (365))
+(test 3600 (unit-of-time 1 'h))
+
+(t (prinl "mac.m.l -- all tests passed"))

@@ -13,12 +13,6 @@
          ((=0 ,$Expr) ,Zero)
          (T ,Neg) ) )
 
-   (maq! nif!2 (!Expr Pos Zero Neg)
-      (cond
-         ((gt0 ,$Expr) ,Pos)
-         ((=0 ,$Expr) ,Zero)
-         (T ,Neg) ) )
-
    (mac! square (!X)
       `(* ,$X ,$X) )
 
