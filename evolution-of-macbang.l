@@ -193,19 +193,6 @@
    ###
 
 
-   # in the future i may try to rewrite 'leq*' so it functions more like
-   # 'evq*'. there's just something about seeing those nested backquotes in
-   # the code.
-
-   (de mac!7 Lst
-      (let [(Name Args . Body) Lst]
-         ~(leq [!Syms (!syms-in Args)  $Syms (!syms-to-$syms !Syms)]
-            `(de ,Name Lst
-               (let [,Args Lst]
-                  ~(leq* ,[mapbox ($syms-in Body)]                   # proposed
-                     `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)] # changes
-                         (evq ,@Body ) ) ) ) ) ) ) ) )               # here
-
    # at this point it's all a matter of aesthetics. that and showing how it's
    # possible to completely change and extend the behavior of the PicoLisp
    # programming language. yay metaprogramming!
