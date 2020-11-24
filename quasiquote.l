@@ -36,7 +36,7 @@
 (de let-eval-quasiquote-readmacro Lst
    (let [(Args . Body) (leqargs Lst)]
       (macro
-         '((let ^ Args (eval-quasiquote ^ Body ))) ) ) )
+         '((let ^ Args (eval (quasiquote ^ Body )))) ) ) )
 
 # leq* - bindings in nested eval-quasiquote forms. used in macro-defining
 # macros.
@@ -48,7 +48,7 @@
 (de let-eval-quasiquote-star-readmacro Lst
    (let [(Args . Body) (leqargs Lst)]
       (macro
-         '(",""`"(let ^ Args (eval-quasiquote ^ Body ))) ) ) )
+         '(",""`"(let ^ Args (eval (quasiquote ^ Body ))) ) ) ) )
 
 (de leqargs (Lst)
    (let [L (_leqargs Lst)
