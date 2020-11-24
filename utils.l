@@ -25,4 +25,20 @@
             (flip (cons Src Acc)) ) ) ) )
 
 
+(de leaves L
+   (let ((@Tree @Test @Result) L)
+      (macro
+         (_leaves
+            @Tree
+            '((@) @Test)
+            '((@) @Result) ) ) ) )
 
+(de _leaves (Tree Test Result)
+   (if Tree
+      (if (pair Tree)
+         (cons
+            (_leaves (car Tree) Test Result)
+            (_leaves (cdr Tree) Test Result) )
+         (if (Test Tree)
+            (Result Tree)
+            Tree ) ) ) )
