@@ -36,6 +36,41 @@
                      (recurse (cdr X) (cons (sym ",") Acc)) ) )
             (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
 
+# macro compiler
+
+(de mc (M)
+   (_mc (leaves M (= @ 'quasiquote) '_quasiquote) ) )
+
+(de _mc (X)
+   (recur (X Acc)
+      (ifn X
+         (flip Acc)
+         (if (pair (car X))
+            (if (= (caar X) '_quasiquote)
+               # eval '_quasiquote' forms
+               (recurse (cddr X) (cons (eval (car X) Acc)))
+               (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
+            (recurse (cdr  X) (cons (car X) Acc))) ) ) )
+
+
+# (pipe (print (mc1 nif$)) (make (while (read "_-=!$<>") (link @))))
+# (replace @ "'" 'macro)
+# (glue " " @)
+# (any @)
+
+(de mcompile (M)
+   (use Tmp
+      (setq Tmp (mc M))
+      (while (fish '((L) (= (car L) '_quasiquote)) Tmp)
+         (setq Tmp (mc Tmp)) )
+      (let Raw (pipe
+                  (print Tmp)
+                  (make
+                     (while (read "_-=!?<>$*")
+                        (link @) ) ) )
+         (any (glue " " (replace Raw "'" 'macro))) ) ) )
+
+
 
 # working with mfiles
 (de mvi (Name)
