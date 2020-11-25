@@ -13,11 +13,12 @@
          (transform
             (mread File) ) ) ) )
 
+(def 'MREADSTRING "_-=!?<>$*")
 # read a macro file ("File.m.l" by convention)
 (de mread (File)
    (in File
       (make
-         (while (read "_-=!?<>$*")
+         (while (read MREADSTRING)
             (link @) ) ) ) )
 
 (de transform (Lst)
