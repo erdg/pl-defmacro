@@ -37,42 +37,6 @@
                      (recurse (cdr X) (cons (sym ",") Acc)) ) )
             (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
 
-# macro compiler
-
-(de mc (M)
-   (_mc (leaves M (= @ 'quasiquote) '_quasiquote) ) )
-
-(de _mc (X)
-   (recur (X Acc)
-      (ifn X
-         (flip Acc)
-         (if (pair (car X))
-            (if (= (caar X) '_quasiquote)
-               # eval '_quasiquote' forms
-               (recurse (cddr X) (cons (eval (car X) Acc)))
-               (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
-            (recurse (cdr  X) (cons (car X) Acc))) ) ) )
-
-
-# (pipe (print (mc1 nif$)) (make (while (read "_-=!$<>") (link @))))
-# (replace @ "'" 'macro)
-# (glue " " @)
-# (any @)
-
-(de mcompile (M)
-   (use Tmp
-      (setq Tmp (mc M))
-      (while (fish '((L) (= (car L) '_quasiquote)) Tmp)
-         (setq Tmp (mc Tmp)) )
-      (let Raw (pipe
-                  (print Tmp)
-                  (make
-                     (while (read "_-=!?<>$*")
-                        (link @) ) ) )
-         (any (glue " " (replace Raw "'" 'macro))) ) ) )
-
-
-
 # working with mfiles
 (de mvi (Name)
    (let File (pack Name ".m.l")
@@ -89,3 +53,96 @@
          (= "ml"
             (pack (tail 2 (split (chop X) ".")))) )
       Lst ) )
+
+
+### mc - the macro compiler (proof of concept)
+#
+# the idea is...
+#  
+#  # to pipe the macro definition to low-level 'read'
+#
+#  (eval
+#     (quasiquote
+#        "`"(* ","X ","X) ) )
+#
+#  # transform "eval quasiquote" forms into "macro _quasiquote" forms with a 
+#  # backquote readmacro
+#
+#  (macro
+#     `(_quasiquote
+#        "`"(* ","X ","X) ) )
+#
+#  # bring it back to lisp so the backquote readmacro fires
+#
+#  (macro
+#     '(* ^ (list X) ^ (list X)) )
+#
+#  # pipe *that* back to low-level 'read' to remove the quotes from the 'macro'
+#  # lists and finally bring it back to lisp where it can run like normal
+#
+#  (macro
+#     (* ^ (list X) ^ (list X)) )
+#
+#
+# compiled macros tend to be an order of magnitude faster, e.g.
+#
+#  : (defunits time s  m 60 h (60 m) d (24 h))
+#  -> unit-of-time
+#
+#  : (def 'unit-of-time-compiled (mc unit-of-time))
+#  -> unit-of-time-compiled
+#
+#  : (bench (do 1000000 (unit-of-time 28 'd)))
+#  ->
+#
+#  : (bench (do 1000000 (unit-of-time-compiled 28 'd)))
+#  -> 
+
+(de mc (M)
+   (and M
+      # "raw" mode
+      (pipeMacro @)
+      (replace @ 'eval 'macro)
+      # 'quasiquote -> _quasiquote with '`' read-macro
+      (_mc @)
+      (remove-parens-before-backquotes @)
+      # prep transient symbols
+      (mapcar '((X) (if (pair X) (sym (pack @)) X)) @)
+      # back to lisp
+      (any (glue " " @))
+      # back to "raw" mode
+      (pipeMacro @)
+      # remove "'"s following 'macro'
+      (remove-quotes-after-macros @)
+      # prep transient symbols again
+      (mapcar '((X) (if (pair X) (sym (pack @)) X)) @)
+      # back to lisp
+      (any (glue " " @)) ) )
+
+(de pipeMacro (M)
+   (pipe
+      (println M)
+      (make
+         (while (read MREADSTRING)
+            (link @) ) ) ) )
+
+(de _mc (Ls)
+   (make
+      (for L Ls
+         (if (= L 'quasiquote)
+            (link "`" "(" '_quasiquote)
+            (link L) ) ) ) )
+
+(de remove-parens-before-backquotes (Lst)
+   (use L
+      (setq L Lst)
+      (let Bs (indexes "`" Lst)
+         (for (I . B) Bs
+            (setq L (remove (- B 1 (- I 1)) L)) ) ) ) )
+
+(de remove-quotes-after-macros (Lst)
+   (use L
+      (setq L Lst)
+      (let Qs (mapcar inc (indexes 'macro Lst))
+         (for (I . Q) Qs
+            (setq L (remove (- Q (- I 1)) L)) ) ) ) )
