@@ -16,6 +16,12 @@
       (for L Lst
          (if (pair L) (chain @) (link L)) ) ) )
 
+(de indexes (X L)
+   (recur (L Acc)
+      (if (index X L)
+         (recurse (tail (- @) L) (cons (+ @ (if Acc (car Acc) 0)) Acc))
+         (flip Acc) ) ) )
+
 (de groups-of (N Src)
    (if (=0 N) (err "zero length"))
    # hack to account for off by 1
