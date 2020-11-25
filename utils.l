@@ -1,5 +1,7 @@
 ### utils
 
+(def 'lD ld) # all. the. time.
+
 (de flat  (L) (fish atom L))
 
 (de symb @
