@@ -33,11 +33,11 @@
 (de a+expand (Args Syms)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   ","(a+expand (cdr Args)
                         (append Syms (list Sym)) ) ) ) )
-      (cl-backquote-form
+      (quasiquote
          "`"(+ ",@"Syms) ) ) )
 
 (scl 2)
@@ -47,11 +47,11 @@
 (de alist-expand (Args Syms)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   ","(alist-expand (cdr Args)
                         (append Syms (list Sym)) ) ) ) )
-      (cl-backquote-form
+      (quasiquote
          "`"(list ",@"Syms) ) ) )
 
 # from On Lisp (p.220)
@@ -62,7 +62,7 @@
 (de anaphex (Args Expr)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   ","(anaphex (cdr Args)
                         (append Expr (list Sym)) ) ) ) )
@@ -78,7 +78,7 @@
 (test '(let Y 7 (* Y 2 3 4 5))
    (let [N 7
          L (2 3 4 5) ]
-      (cl-backquote-form
+      (quasiquote
          "`"(let Y ","N
                (* Y ",@"L) ) ) ) )
 
