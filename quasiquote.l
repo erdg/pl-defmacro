@@ -71,73 +71,40 @@
       (cons (car Lst) (_leqargs (cdr Lst)))
       Lst ) )
 
-# evq* - alternate notation for nested quasiquotes. all the following are the
-# same (pretty sure)
+# qfn - quasiquote functions
 #
-#     ~(leq [...]
-#         `(...
-#            ~(leq
-#               ~(leq* ,,[...]
-#                  ... ) ) ) )
-#
-#         vs
-#
-#     ~(leq [...]
-#        `( ...
-#           ~(leq
-#              ~(evq*
-#                  `(let ,,[...]
-#                     ... ) ) ) ) )
-#
-#         vs
-#
-#      (let
-#         (evq
-#            `( ...
-#               (let ,[...]
-#                  (evq
-#                     '(let ,,[...]
-#                        ... ) ) ) ) ) )
-
-
-(de eval-quasiquote-readmacro Lst
-   (macro '((evq "," ^ Lst))) )
-
-
-# shorthand for quasiquote functions
-#
-# if (car Lst) is a list, supply your own args
-#
-#     ~(qfn (X Y) `(,(car X) ,(car Y)))
-#
-#  else use Qsyms ((car Lst) is assumed to be "`")
+#  use anaphoric Qsyms if (car Lst) is a backquote "`"
 #
 #     ~(qfn `(,(car Q1) ,(car Q2)))
 #
+#  else supply your own args
+#
+#     ~(qfn (X Y) `(,(car X) ,(car Y)))
+
 (de qfn Lst
    (if (= (car Lst) "`")
-      (macro (q ^ Lst))
+      (macro (_qfn ^ Lst))
       (let [(Args . Body) Lst]
          (macro
-            (list (lit '((^ Args) (quasi ^ Body)))) ) ) ) )
+            (list (lit '((^ Args) (quasiquote ^ Body)))) ) ) ) )
 
 # same as above, with anaphoric Qsyms
 #
-# ~(q `(,(car Q1) ,(cadr Q1)))
-#
-(de q Lst
+# ~(_qfn `(,(car Q1) ,(cadr Q1)))
+
+(de _qfn Lst
    (macro
       (list
-         (lit '((^(Qsyms Lst)) (quasi ^ Lst))) ) ) )
+         (lit '((^(Qsyms Lst)) (quasiquote ^ Lst))) ) ) )
 
 # Q1 ... QN
 (de Qsyms (Lst)
    (by
       '((X) (stem (chop X) 'Q))
       sort
-      (filter '((X) (and (pre? 'Q (pack X)) (> (length @) 1)))
-         (uniq
-            (flat Lst) ) ) ) )
+      (filter
+         '((X) (and (pre? 'Q (pack X)) (= (length @) 2)))
+         (uniq (flat Lst) ) ) ) )
 
 
 ### abbrevs
