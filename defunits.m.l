@@ -2,16 +2,16 @@
 
    (mac defunits1 (Quantity Base . Units)
       `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
-         (* ,,$Val
+         `(* ,,$Val
             (case ,,$Unit
                (,Base 1)
                ,@(mapcar
-                     ~(q `(,(car Q1) ,(cadr Q1)))
-                     (groups-of 2 Units) ) ) ) ) )
+                     ~(qfn `(,(car Q1) ,(cadr Q1)))
+                     (groups 2 Units) ) ) ) ) )
 
    (mac defunits (Quantity Base . Units)
       `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
-         (* ,,$Val
+         `(* ,,$Val
             (case ,,$Unit
                (,Base 1)
                ,@(mapcar
@@ -20,41 +20,9 @@
                            ,(defunits-chaining
                               (car X)
                                  (cons
-                                    (quasi `(,Base 1))
-                                    (groups-of 2 Units) ) ) ) )
-                     (groups-of 2 Units) ) ) ) ) )
-
-   (mac defunits2 (Quantity Base . Units)
-      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
-         ~(evq*
-            `(* ,,$Val
-               (case ,,$Unit
-                  (,Base 1)
-                  ,@(mapcar
-                        ~(qfn (X)
-                           `(,(car X)
-                              ,(defunits-chaining
-                                 (car X)
-                                    (cons
-                                       (quasi`(,Base 1))
-                                       (groups-of 2 Units) ) ) ) )
-                        (groups-of 2 Units) ) ) ) ) ) )
-
-   (mac defunits3 (Quantity Base . Units)
-      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
-         ~(leq* []
-            (* ,,$Val
-               (case ,,$Unit
-                  (,Base 1)
-                  ,@(mapcar
-                        ~(qfn (X)
-                           `(,(car X)
-                              ,(defunits-chaining
-                                 (car X)
-                                    (cons
-                                       (quasi`(,Base 1))
-                                       (groups-of 2 Units) ) ) ) )
-                        (groups-of 2 Units) ) ) ) ) ) )
+                                    (quasiquote `(,Base 1))
+                                    (groups 2 Units) ) ) ) )
+                     (groups 2 Units) ) ) ) ) )
 
    (de defunits-chaining (U Units)
       (let Spec (assoc U Units)
