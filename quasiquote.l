@@ -28,27 +28,36 @@
 
 ### read-macros (for m.l files)
 
-# leq - create bindings for eval-quasiquote forms
+# evq - 'eval quasiquote' abbreviation
+#
+# ~(evq ...)
+#
+#  expands to
+#
+#  (eval
+#     (quasiquote
+#        ... ) )
+
+(de eval-quasiquote Lst
+   (macro
+      '((eval (quasiquote ^ Lst))) ) )
+
+# leq - 'let eval quasiquote' abbreviation
 #
 # ~(leq [X 2 Y 3]
 #    `(* ,X ,Y) )
+#
+#  expands to
+#
+#  (let [X 2 Y 3]
+#     (eval
+#        (quasiquote
+#           `(* ,X ,Y) ) ) )
 
-(de let-eval-quasiquote-readmacro Lst
+(de let-eval-quasiquote Lst
    (let [(Args . Body) (leqargs Lst)]
       (macro
          '((let ^ Args (eval (quasiquote ^ Body )))) ) ) )
-
-# leq* - bindings in nested eval-quasiquote forms. used in macro-defining
-# macros.
-#
-#  (leq ,[...]          # ','  - computed at fn definition time
-#     ~(leq* ,,[...]    # ",,' - computed at defined fn's run time
-#     ... )
-
-(de let-eval-quasiquote-star-readmacro Lst
-   (let [(Args . Body) (leqargs Lst)]
-      (macro
-         '(",""`"(let ^ Args (eval (quasiquote ^ Body ))) ) ) ) )
 
 (de leqargs (Lst)
    (let [L (_leqargs Lst)
