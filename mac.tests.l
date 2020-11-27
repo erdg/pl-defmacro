@@ -26,5 +26,24 @@
 
 (defunits time s m 60 h (60 m) d (24 h) y (365 d))
 (test 3600 (unit-of-time 1 'h))
+(test 3600 (unit-of-time 1 'h))
+
+(def 'nif (mc nif!))
+(test 'z (nif 0  'p 'z 'n))
+
+(defunits distance in
+   ft 12
+   yd (3 ft)
+   fathom (2 yd)
+   mile (5280 ft)
+   rod (15 ft)
+   furlong (40 rod)
+   chain (4 rod)
+   league (3 mile)
+   cubit 18 )
+
+(def 'unit-of-distance-compiled (mc unit-of-distance))
+
+(test 1080 (unit-of-distance-compiled 6 'rod))
 
 (t (prinl "mac.m.l -- all tests passed"))
