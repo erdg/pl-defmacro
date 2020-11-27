@@ -10,7 +10,7 @@
       ~(leq [(Name Args . Body) Lst]
          `(de ,Name Lst
             (let [,Args Lst]
-               ~(leq ,[mapbox ($syms-in Body)]
+               ~(leq ,[boxes ($syms-in Body)]
                   ,@Body ) ) ) ) )
 
    (de mac! Lst
@@ -18,8 +18,8 @@
          ~(leq [!Syms (!syms-in Args) $Syms (!syms-to-$syms !Syms)]
             `(de ,Name Lst
                (let [,Args Lst]
-                  ~(leq ,[mapbox ($syms-in Body)]
-                     ~(leq* ,,[letargs (list ,@$Syms) (list ,@!Syms)]
+                  ~(leq ,[boxes ($syms-in Body)]
+                     `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
                         ,@Body ) ) ) ) ) ) )
 
    (de !sym (S)
@@ -44,8 +44,8 @@
    (de !syms-in (L)
       (uniq (filter !sym (flat L))) )
 
-   (de mapbox (Lst)
-      (mapcan ~(q `(,Q1 (box))) Lst) )
+   (de boxes (Lst)
+      (mapcan ~(qfn `(,Q1 (box))) Lst) )
 
    (de letargs (Xs Ys)
       (mapcan list Xs Ys) )
