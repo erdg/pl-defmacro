@@ -21,15 +21,6 @@
 
    (mac! add (!X !Y) `(+ ,$X ,$Y))
 
-   (mac add-buggy (X Y) `(+ ,X ,Y))
-
-   (mac! add3 (!X !Y Z)
-      `(let ,$Z ,Z
-         (+ ,$X ,$Y ,$Z) ) )
-
-   (mac! add3-buggy (X Y Z)
-      `(+ ,X ,Y ,Z) )
-
    (mac aif (Test Then Else)
       `(let it ,Test
             (if it ,Then ,Else) ) )
