@@ -36,7 +36,7 @@
 
    (mac defunits (Quantity Base . Units)
       `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
-         (* ,,$Val
+         `(* ,,$Val
             (case ,,$Unit
                (,Base 1)
                ,@(mapcar
@@ -45,9 +45,9 @@
                            ,(defunits-chaining
                               (car X)
                                  (cons
-                                    (quasi `(,Base 1))
-                                    (groups-of 2 Units) ) ) ) )
-                     (groups-of 2 Units) ) ) ) ) )
+                                    (quasiquote `(,Base 1))
+                                    (groups 2 Units) ) ) ) )
+                     (groups 2 Units) ) ) ) ) )
 
    (de defunits-chaining (U Units)
       (let Spec (assoc U Units)
