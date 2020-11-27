@@ -22,7 +22,7 @@
          (recurse (tail (- @) L) (cons (+ @ (if Acc (car Acc) 0)) Acc))
          (flip Acc) ) ) )
 
-(de groups-of (N Src)
+(de groups (N Src)
    (if (=0 N) (err "zero length"))
    # hack to account for off by 1
    (inc 'N)
