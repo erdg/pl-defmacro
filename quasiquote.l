@@ -6,24 +6,24 @@
          (^(macro (_quasiquote ^ Lst))) ) ) )
 
 (de _quasiquote X
-   (deflate
-      (recur (X Acc)
-         (ifn X
-            (flip Acc)
-            (if (pair (car X))
-               (if (atom (cdr @))
-                  (recurse (cdr X) (cons (car X) Acc))
-                  (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
-               (case (car X)
-                  ("`"  (recurse (cdr  X) (cons (lit 'quote) Acc)) )
-                  (","  (recurse (cddr X) (cons (list 'list (cadr X)) '^ Acc)) )
-                  (",@" (recurse (cddr X) (cons (cadr X) '^ Acc)) )
-                  (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) ) )
-
-(de eval-quasiquote Lst
-   (macro
-      (eval
-         (quasiquote ^ Lst) ) ) )
+   (use BQ
+      (deflate
+         (recur (X Acc)
+            (ifn X
+               (flip Acc)
+               (if (pair (car X))
+                  (if (atom (cdr @))
+                     (recurse (cdr X) (cons (car X) Acc))
+                     (recurse (cdr X) (cons (recurse (car X) NIL) Acc)) )
+                  (case (car X)
+                     ("`"  (if BQ  # if backquote encountered already
+                              (recurse (cdr  X) (cons (car X) Acc))  # then do nothing
+                              # else mark encountered and 'quote' the list
+                              (on BQ)
+                              (recurse (cdr  X) (cons (lit 'quote) Acc)) ) ) 
+                     (","  (recurse (cddr X) (cons (list 'list (cadr X)) '^ Acc)) )
+                     (",@" (recurse (cddr X) (cons (cadr X) '^ Acc)) )
+                     (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) ) ) )
 
 
 ### read-macros (for m.l files)
