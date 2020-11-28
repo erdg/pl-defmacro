@@ -1,5 +1,7 @@
+(def 'lambda quote)
+
 (defmacro alet (Args . Body)
-   "`"'(@
+   "`"(lambda @
          (job '(","(cons 'This (cdr (last Body))) ",@"Args)
             ",@"(head -1 Body)
             (apply This (rest)) ) ) )
@@ -20,7 +22,6 @@
    (test -4 (alet-test 10))
    (t (prinl "alet.l -- all tests passed")) )
 
-(def 'lambda quote)
 
 (defmacro dlambda "Ds"
    "`"(lambda @
@@ -29,5 +30,5 @@
                   (for "D" "Ds"
                      (link
                         (list (car "D")
-                           (cl-backquote-form
+                           (quasiquote
                               "`"(apply (lambda ",@"(cdr "D")) (rest)) ) ) ) ) ) ) ) )
