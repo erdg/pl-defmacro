@@ -20,7 +20,7 @@
                (let [,Args Lst]
                   ~(leq ,[boxes ($syms-in Body)]
                      `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
-                        ,@Body ) ) ) ) ) ) )
+                        ~(evq ,@Body) ) ) ) ) ) ) )
 
    (de !sym (S)
       (and (sym? S)
