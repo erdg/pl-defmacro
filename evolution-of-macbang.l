@@ -28,7 +28,7 @@
                (quasiquote
                   `(de ,Name Lst
                      (let [,Args Lst]
-                        (let ,[mapcan '((S) (quasi `(,S (box)))) $Syms)]
+                        (let ,[mapcan '((S) (quasiquote `(,S (box)))) $Syms)]
                            (eval
                               (quasiquote
                                  ,@Body ) ) ) ) ) ) ) ) )
@@ -45,7 +45,7 @@
             (evq
                `(de ,Name Lst
                   (let [,Args Lst]
-                     (let [,(mapcan '((S) (quasi `(,S (box)))) $Syms)]
+                     (let [,(mapcan '((S) (quasiquote `(,S (box)))) $Syms)]
                         (evq
                            ,@Body ) ) ) ) ) ) ) )
 
@@ -54,7 +54,8 @@
 
    ### - mac!
    #
-   # this kinda worked but was totally broken on the inside. it didn't quite
+   # while this is a literal translation of the code in Let Over Lambda and
+   # kinda worked, it was totally broken on the inside. it didn't quite
    # generate the right expansion. it passed simple tests, but didn't work when
    # there was more than one "!" symbol in the form.
 
@@ -75,10 +76,10 @@
       (let [(Name Args . Body) Lst]
          (let [!Syms (filter !sym Args)  $Syms (mapcar !sym-to-$sym !Syms)]
             (evq
-               `(de ,Name Lst
+               `(de ,Name Lst       # mac$
                   (let [,Args Lst]
                      (let ,(mapcan '((S) (quasi `(,S (box)))) (uniq (filter $sym (flat Body))))
-                        (evq
+                        (evq        # with new stuff
                            '(let ,,(mapcan list (list ,@$Syms) (list ,@!Syms))
                               (evq
                                  ,@Body ) ) ) ) ) ) ) ) ) )
@@ -86,6 +87,7 @@
    # but i don't like how the code looks. it's dense and hard to parse. the
    # following definitions sculpt this into something more concise and easier
    # to understand.
+
 
    # i was frustrated that nested backquotes weren't working in this system,
    # which resulted in the creation of a read-macro 'evq*' to make writing
@@ -112,11 +114,12 @@
    # read-macros anyway?  if you've got one that can splice, you've got one
    # that can place (by writing functions that 'list' their results).
 
-   # the 'q' read-macro is just that. its the sharp-backquote of this PL macro
-   # lang. 'q' accepts 'Qsym' anaphors (Q1 ... QN) and returns a function with
-   # things spliced and diced in.
+   # the 'qfn' read-macro is just that. its the 'sharp-backquote' of this PL
+   # macro lang. 'qfn' accepts 'Qsym' anaphors (Q1 ... QN) and returns a
+   # function with things spliced and diced in.
 
-   # ~(q `(,Q1 (box))) -> '((Q1) (quasiquote "`"(","Q1 (box))))
+   # ~(qfn `(,Q1 (box))) -> '((Q1) (quasiquote "`"(","Q1 (box))))
+   # ~(qfn `(,Q1 ,@(cdr Q2))) -> '((Q1 Q2) (quasiquote "`"(","Q1 ",@"(cdr Q2))))
 
    (de mac!4 Lst
       (let [(Name Args . Body) Lst]
@@ -124,7 +127,7 @@
             (evq
                `(de ,Name Lst
                   (let [,Args Lst] # NEW
-                     (let ,[mapcan ~(q `(,Q1 (box))) (uniq (filter $sym (flat Body)]
+                     (let ,[mapcan ~(qfn `(,Q1 (box))) (uniq (filter $sym (flat Body)]
                         ~(evq*
                            `(let ,,[mapcan list (list ,@$Args) (list ,@!Args)]
                               (evq ,@Body ) ) ) ) ) ) ) ) ) )
@@ -141,7 +144,7 @@
                `(de ,Name Lst
                   (let [,Args Lst]
                            # NEW
-                     (let ,[mapbox ($syms-in Body)]
+                     (let ,[boxes ($syms-in Body)] # fn call that looks like a let binding! neato!!
                         ~(evq*     # NEW
                            `(let ,,[letargs (list ,@$Args) (list ,@!Args)]
                               (evq ,@Body ) ) ) ) ) ) ) ) ) )
@@ -190,7 +193,7 @@
          ~(leq [!Syms (!syms-in Args)  $Syms (!syms-to-$syms !Syms)]
             `(de ,Name Lst
                (let [,Args Lst]
-                  ~(leq ,[mapbox ($syms-in Body)]
+                  ~(leq ,[boxes ($syms-in Body)]   # fn call looks like 'let' binds!
                      # NEW
                      ~(leq* ,,[letargs (list ,@$Syms) (list ,@!Syms)]
                          ,@Body ) ) ) ) ) ) )
