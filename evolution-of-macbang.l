@@ -1,4 +1,20 @@
-# NOTE - this file is for documentation only and will not work
+# NOTE - this is file is for documentation and does not work
+
+# this is an explanation of the macros 'mac$' and 'mac!', the picolisp versions
+# of 'defmacro/g!' and 'defmacro!' (respectively) from Let Over Lambda.
+
+# NOTE - searching for "square" (e.g. /square in vim) will bring you to the
+# explanation of 'mac!'. it might make sense to read that first? otherwise
+# enjoy the following code, you'll get there eventually
+
+# UPDATE - nested backquotes were fixed in 'quasiquote.l' and now work as
+# expected (though not exactly like common lisp). the following sections about
+# 'evq*', 'leq*' and "nested backquotes" serve as a historical snapshot, but
+# are no longer accurate. ignore 'evq*' and 'leq*' and imagine the nested
+# backquotes working the whole way through (because they do!). The final
+# versions (also in mac.m.l) are listed in another 'UPDATE' section near the
+# bottom.
+
 (m
 
    ### mac$ - defmacro/g! from Let Over Lambda
@@ -192,6 +208,19 @@
    # and execution when writing macros.
    ###
 
+   # UPDATE - i finally "fixed" nested backquotes, which allowed to remove
+   # 'evq*' and 'leq*'. the definitions look better (especially in new macro
+   # definitions, see 'defunits.m.l') and make more sense with all backquotes
+   # displayed
+
+   (de mac! Lst
+      (let [(Name Args . Body) Lst]
+         ~(leq [!Syms (!syms-in Args) $Syms (!syms-to-$syms !Syms)]
+            `(de ,Name Lst
+               (let [,Args Lst]
+                  ~(leq ,[boxes ($syms-in Body)]
+                     `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
+                        ~(evq ,@Body) ) ) ) ) ) ) )
 
    # at this point it's all a matter of aesthetics. that and showing how it's
    # possible to completely change and extend the behavior of the PicoLisp
@@ -221,7 +250,7 @@
    (de $syms-in (L)
       (uniq (filter $sym (flat L))) )
 
-   (de mapbox (Lst)
+   (de boxes (Lst)
       (mapcan ~(q `(,Q1 (box))) Lst) )
 
    (de letargs (Xs Ys)
