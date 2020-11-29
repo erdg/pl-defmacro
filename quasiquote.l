@@ -20,7 +20,7 @@
                               (recurse (cdr  X) (cons (car X) Acc))  # then do nothing
                               # else mark encountered and 'quote' the list
                               (on BQ)
-                              (recurse (cdr  X) (cons (lit 'quote) Acc)) ) ) 
+                              (recurse (cdr  X) (cons (lit 'quote) Acc)) ) )
                      (","  (recurse (cddr X) (cons (list 'list (cadr X)) '^ Acc)) )
                      (",@" (recurse (cddr X) (cons (cadr X) '^ Acc)) )
                      (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) ) ) )
