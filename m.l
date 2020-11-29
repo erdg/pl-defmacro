@@ -6,7 +6,7 @@
 #  (m
 #     ...
 #  )
-#
+
 (de mload (File)
    (mapc eval
       (cdr
@@ -26,6 +26,8 @@
       (glue " "
          (_transform Lst) ) ) )
 
+# 'sym' all backticks '`', unquotes ',' and unquote-splices ',@' so they appear
+# as transient symbols when the code is 'eval'ed by 'mload'
 (de _transform (X)
    (recur (X Acc)
       (ifn X
@@ -58,14 +60,14 @@
 ### mc - the macro compiler (proof of concept)
 #
 # the idea is...
-#  
+#
 #  # to pipe the macro definition to low-level 'read'
 #
 #  (eval
 #     (quasiquote
 #        "`"(* ","X ","X) ) )
 #
-#  # transform "eval quasiquote" forms into "macro _quasiquote" forms with a 
+#  # transform "eval quasiquote" forms into "macro _quasiquote" forms with a
 #  # backquote readmacro
 #
 #  (macro
@@ -93,10 +95,10 @@
 #  -> unit-of-time-compiled
 #
 #  : (bench (do 1000000 (unit-of-time 28 'd)))
-#  ->
+#  -> approx. 10 seconds
 #
 #  : (bench (do 1000000 (unit-of-time-compiled 28 'd)))
-#  -> 
+#  -> approx. 1 second
 
 (de mc (M)
    (and M
