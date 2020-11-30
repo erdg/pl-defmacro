@@ -39,6 +39,16 @@
                      (recurse (cdr X) (cons (sym ",") Acc)) ) )
             (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
 
+# one-shot msyntax repl
+(de m1 ()
+   (prinl "m1 -- the macro repl")
+   (prin  ": ")
+   (let M (till '^)  # '^' to end
+      (prog
+         (out (tmp "mrepl") (prin M))
+         (eval (transform (mread (tmp "mrepl"))) ) ) ) )
+
+
 # working with mfiles
 (de mvi (Name)
    (let File (pack Name ".m.l")
