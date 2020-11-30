@@ -28,7 +28,20 @@
 
 ### read-macros (for m.l files)
 
-# evq - 'eval quasiquote' abbreviation
+# qq - 'quasiquote' abbreviation
+#
+# ~(qq ...)
+#
+#  expands to
+#
+#  (quasiquote ...)
+
+(de qq Lst
+   (macro
+      '((quasiquote ^ Lst))) )
+
+
+# evq - 'eval quasiquote' abbrev
 #
 # ~(evq ...)
 #
