@@ -1,5 +1,5 @@
 # this is a high-level overview of the minimum code needed to write
-# "quasiquote-style macros" in native picolisp, i.e. with '`', ',' and ',@'
+# "quasiquote macros" in native picolisp, i.e. with '`', ',' and ',@'
 # behaving as expected (and not having to be transient symbols).
 
 # m.l - the macro (".m.l") file loader
@@ -23,6 +23,7 @@
       (glue " "
          (_transform Lst) ) ) )
 
+# macro chars to transient symbols
 (de _transform (X)
    (recur (X Acc)
       (ifn X
@@ -62,6 +63,13 @@
                      (",@" (recurse (cddr X) (cons (cadr X) '^ Acc)) )
                      (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) ) ) ) )
 
+# remove one level of nesting, eg. (1 2 (3 4 (5 6))) -> (1 2 3 4 (5 6))
+(de deflate (Lst)
+   (make
+      (for L Lst
+         (if (pair L) (chain @) (link L)) ) ) )
+
+NIL
 
 # mac.m.l - define new macros with 'mac'
 
@@ -80,8 +88,7 @@
 )
 
 # the rest of the code in this repo expands upon this idea to add some syntax
-# sugar, a toy macro "compiler", a couple neat variations of 'mac' and a few
+# sugar, a toy macro "compiler", a new "macro repl", a couple neat variations of 'mac' and some
 # examples of more complicated macros.
-
 
 # the adventure continues with 'explanation.l'
