@@ -11,7 +11,7 @@
                         (quasiquote ^ Body) ) ) ) ) ) )
 
    # the file 'm.l' allows to use 'unquote' and 'unquote-splice' "natively" in
-   # picolisp code. using that, the definition becomes
+   # picolisp code. with that, the definition becomes
 
       (de defmacro Lst
          (let [(Nm Args . Body) Lst]
@@ -40,14 +40,14 @@
 
       (def 'evq eval-quasiquote)
 
-   # 'evq' is a read-macro that operates on raw structure of the code. it
-   # transforms '(evq ...)' into '(eval (quasiquote ...))' before it runs. as
-   # such, the previous two definitions of 'defmacro' are identical as far as
-   # the picolisp interpreter is concerned.
+   # it transforms '(evq ...)' into '(eval (quasiquote ...))' before it runs.
+   # as such, the previous two definitions of 'defmacro' are identical as far
+   # as the picolisp interpreter is concerned.
 
    # note that 'evq' returns a list wrapped in an extra layer of parens. this
-   # is because the tilde '~' read-macro is used to *splice* it in. the '~' read-macro
-   # is used because the backquote '`' read-macro has been shadowed in '.m.l' files.
+   # is because the tilde '~' read-macro is used to *splice* it in. the '~'
+   # read-macro is used because the backquote '`' read-macro has been shadowed
+   # in '.m.l' files.
 
    # another common pattern is '(let [...] (eval (quasiquote ...)))'. the 'leq'
    # ('let-eval-quasiquote') read-macro was created as an abbreviation. 'leq'
@@ -98,6 +98,9 @@
          `(let it ,Test
                (if it ,Then ,Else) ) )
 
+   # NOTE - 'aif' is merely an example macro and  would never be used in
+   # picolisp because the same functionality exists in the built-in 'if'.
+
    # 'aif' is an "anaphoric" macro that captures the symbol 'it' and binds it
    # to the result of the 'Test' expression so it can be refered to without
    # having to explicitly create new variables
@@ -105,7 +108,7 @@
       (de add2-safe (N)
          (aif (num? N)
             (+ 2 it)
-            (nil (prinl "ERROR - " it " is NOT a number"))) )
+            (prinl "ERROR - " it " is NOT a number")) )
 
    # as expected, the definition of 'aif' has the '(eval (quasiquote ...))'
    # pattern
