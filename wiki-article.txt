@@ -70,11 +70,11 @@ symbols is then :{transform}ed into a list of actual PicoLisp code.
          (ifn X
             (flip Acc)
             (case (car X)
-               ("`"  (recurse (cdr  X) (cons (sym "`") Acc)) )
-               (","  (if (= (cadr X) "@")
+               ("`" (recurse (cdr  X) (cons (sym "`") Acc)) )
+               ("," (if (= (cadr X) "@")
                         (recurse (cddr X) (cons (sym ",@") Acc))
                         (recurse (cdr X) (cons (sym ",") Acc)) ) )
-               (T    (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
+               (T   (recurse (cdr  X) (cons (car X) Acc))) ) ) ) )
 
 }
 :{_transform} simply recurses over the list to create a copy. Anytime
@@ -175,15 +175,14 @@ macro-writing environment!
 :{defmacro}.
 :{
 
-      # from mac.m.l
-      (de mac Lst                         # unevaluated args
-         (let [(Nm Args . Body) Lst]      # are destructured
-            (eval
-               (quasiquote                # and filled in
-                  `(de ,Nm Lst
-                     (let [,Args Lst]
-                        (eval
-                           (quasiquote ,@Body) ) ) ) ) ) ) )
+   (de mac Lst                         # unevaluated args
+      (let [(Nm Args . Body) Lst]      # are destructured
+         (eval
+            (quasiquote                # and filled in
+               `(de ,Nm Lst
+                  (let [,Args Lst]
+                     (eval
+                        (quasiquote ,@Body) ) ) ) ) ) ) )
 
 }
 This is fine, but there's a lot of noise in the definition. Let's clean
@@ -439,7 +438,7 @@ make it easy to write more complex macros
             (case ,,$Unit
                (,Base 1)
                ,@(mapcar
-                     ~(qfn (X)
+                     ~(qfn (X)      # read-macro for quasiquote fns
                         `(,(car X)
                            ,(defunits-chaining
                               (car X)
@@ -475,6 +474,7 @@ It works as expected for simple numbers,
 }
 but unexpected things start happening when side-effects are involved.
 :{
+
    : (let Y 2 (square (inc 'Y)))    # expect 9
    -> 12                            # -_-
 
@@ -500,7 +500,6 @@ instead of the expected
    : (square 3)
 
 }
-6{mac$}
 One possible workaround is to introduce a new anonymous symbol (with
 :{box}) and then bind the argument :{X} to it.
 :{
@@ -518,8 +517,8 @@ This works as expected.
    -> 9
 
 }
-
-But multiple evaluation is a pretty common problem, and it would be
+6{mac$}
+Multiple evaluation is a pretty common problem and it would be
 annoying to have to manually create so many :{box}es. Better to write
 another macro. :{mac$} is a variation of :{mac} that scans its :{Body}
 for "$ symbols" and automatically creates :{box}es.
@@ -548,7 +547,7 @@ for "$ symbols" and automatically creates :{box}es.
 }
 As Doug Hoyte writes in Let Over Lambda, :{mac$} allows us to say:
 
-:/{I want a box to be bound around this expression, and I've already
+/{I want a [box] to be bound around this expression, and I've already
 given the symbol. Make it happen}
 
 (see ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_5 Section
@@ -558,8 +557,7 @@ Note that this macro was named :{mac$} because anonymous
 symbols (:{box}es) are visually represented as e.g. :{$177389156348275}
 in PicoLisp.
 4{nested backquotes}
-This idea of "automatic boxes" can be taken a step further. Behold -
-:{mac!}! (see
+This idea of "automatic boxes" can be taken a step further. (see
 ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_6 Section 3.6}
 of Let Over Lambda for a detailed explanation)
 6{mac!}
@@ -613,10 +611,9 @@ it defines (some of which are are finally filled in during /{that} macro's
 run-time) to provide a convenient way of handling variable capture
 and execution when writing macros.
 6{defunits}
-(see
+:{defunits} was shown earlier, but here it is again. (see
 ^{https://letoverlambda.com/index.cl/guest/chap5.html#sec_2 Section 5.2}
 of Let Over Lambda)
-:{defunits} was shown earlier, but here it is again.
 :{
 
    (mac defunits (Quantity Base . Units)
@@ -693,14 +690,14 @@ More specifically, :{defunits} is a macro that writes another macro
 (:{unit-of-[quantity]}) that captures user-defined relationships as
 basic multiplication (using a 'case' statement). That's a fancy way of
 saying there are 60 seconds in a minute and in order to find out how
-many seconds are in 17 minutes we need to multiply (* 17 60).
+many seconds are in 17 minutes we need to multiply :{(* 17 60)}.
 
-Right now, however, we're writing a macro that defines another macro which
-defines relationships between (as-of-now) unknown
-quantities. But we know that whatever they are, we want to multiply them
-to get to some number of some base unit. So we use nested backquotes
-(and "stacked" unquotes) to name these abstract somethings and write
-code with them now.
+Right now, however, we're writing a macro that defines another macro
+which defines relationships between (as-of-now) unknown quantities. But
+we know that whatever they are, we want to multiply them to get to some
+number of some base unit. So we use nested backquotes (and "stacked"
+unquotes) to name these abstract somethings and write code with them
+now.
 
 As a catchphrase:
 
