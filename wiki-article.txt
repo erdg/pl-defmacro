@@ -429,14 +429,14 @@ convenient syntax for code transformations
                (if it ^ (list Then) ^ (list Else)) ) ) ) )
 
 }
-while it's not much of an improvement for such a simple macro, it does
+While it's not much of an improvement for such a simple macro, it does
 make it easy to write more complex macros
 :{
 
    (mac defunits (Quantity Base . Units)
-      `(mac ,(symb 'unit-of- Quantity) ("Val" "Unit")
-         `(* ,,"Val"
-            (case ,,"Unit"
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         `(* ,,$Val
+            (case ,,$Unit
                (,Base 1)
                ,@(mapcar
                      ~(qfn (X)
@@ -452,7 +452,257 @@ make it easy to write more complex macros
 It could be argued whether or not such "macros" have any place in
 picolisp...
 
-So more realistically, the point of all this is to show just how flexible
-and powerful the PicoLisp system is and how easy it is to extend the
-language. A pretty impressive (toy) Common Lisp Macro System can be added to
-PicoLisp with roughly 300 lines of code.
+So maybe more realistically, the point of all this is to show just how
+flexible and powerful PicoLisp is. A pretty impressive (toy) Common Lisp
+Macro System can be added to PicoLisp with roughly 300 lines of code.
+
+(NOTE - the following sections are a PicoLisp translation of
+:{defmacro/g!} and :{defmacro!} from Doug Hoyte's book,
+^{https://letoverlambda.com Let Over Lambda})
+4{macros and multiple evaluation}
+Let's return to our first macro, :{square}
+:{
+
+   (mac square (X) `(* ,X ,X))
+
+}
+It works as expected for simple numbers,
+:{
+
+   : (square 3)
+   -> 9
+
+}
+but unexpected things start happening when side-effects are involved.
+:{
+   : (let Y 2 (square (inc 'Y)))    # expect 9
+   -> 12                            # -_-
+
+}
+Looking at the compiled version of square
+:{
+
+   : (pretty (mc square))
+   -> (Lst (let ((X) Lst) (macro (* ^ (list X) ^ (list X)))))
+
+}
+it can be seen that :{X} is :{list}ed (and thus evaluated) twice. So the
+above call was actually,
+:{
+
+   : (let Y 2 (* (inc 'Y) (inc 'Y)))   # (* 3 4)
+   -> 12
+
+}
+instead of the expected
+:{
+
+   : (square 3)
+
+}
+6{mac$}
+One possible workaround is to introduce a new anonymous symbol (with
+:{box}) and then bind the argument :{X} to it.
+:{
+
+   (mac square-less-buggy (X)
+      (let $X (box)
+         `(let ,$X ,X
+            (* ,$X ,$X) ) ) )
+
+}
+This works as expected.
+:{
+
+   : (let Y 2 (square-less-buggy (inc 'Y)))
+   -> 9
+
+}
+
+But multiple evaluation is a pretty common problem, and it would be
+annoying to have to manually create so many :{box}es. Better to write
+another macro. :{mac$} is a variation of :{mac} that scans its :{Body}
+for "$ symbols" and automatically creates :{box}es.
+:{
+
+   # mac$ - 'defmacro/g!' from Let Over Lambda
+
+   (de mac$ Lst
+      ~(leq [(Name Args . Body) Lst]
+         `(de ,Name Lst
+            (let [,Args Lst]
+               ~(leq ,[boxes ($syms-in Body)]
+                  ,@Body ) ) ) ) )
+
+   (de boxes (Lst)
+      (mapcan ~(qfn `(,Q1 (box))) Lst) )
+
+   (de $syms-in (L)
+      (uniq (filter $sym (flat L))) )
+
+   (de $sym (S)
+      (and (sym? S)
+         (> (length S 1))
+         (pre? '$ S) ) )
+
+}
+As Doug Hoyte writes in Let Over Lambda, :{mac$} allows us to say:
+
+:/{I want a box to be bound around this expression, and I've already
+given the symbol. Make it happen}
+
+(see ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_5 Section
+3.5} in Let Over Lambda)
+
+Note that this macro was named :{mac$} because anonymous
+symbols (:{box}es) are visually represented as e.g. :{$177389156348275}
+in PicoLisp.
+4{nested backquotes}
+This idea of "automatic boxes" can be taken a step further. Behold -
+:{mac!}! (see
+^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_6 Section 3.6}
+of Let Over Lambda for a detailed explanation)
+6{mac!}
+:{
+
+   # mac! - 'defmacro!' from Let Over Lambda
+
+   (de mac! Lst
+      (let [(Name Args . Body) Lst]
+         ~(leq [!Syms (!syms-in Args) $Syms (!syms-to-$syms !Syms)]
+            `(de ,Name Lst
+               (let [,Args Lst]
+                  ~(leq ,[boxes ($syms-in Body)]
+                     `(let ,,[letargs (list ,@$Syms) (list ,@!Syms)]
+                        ~(evq ,@Body) ) ) ) ) ) ) )
+
+   (de !syms-in (L)
+      (uniq (filter !sym (flat L))) )
+
+   (de !sym (S)
+      (and (sym? S)
+         (> (length S 1))
+         (pre? '! S) ) )
+
+   (de !sym-to-$sym (S)
+      (any (pack '$ (cdr (chop S)))) )
+
+   (de !syms-to-$syms (Syms)
+      (mapcar !sym-to-$sym Syms) )
+
+   (de letargs (Xs Ys)
+      (mapcan list Xs Ys) )
+
+}
+:{mac!} is used like this,
+:{
+
+  (mac! square (!X)    # args prefixed with '!' are evaluated once only
+     `(* ,$X ,$X) )    # and referred to as prefixed with '$'
+
+}
+:{mac!} does this by gathering the "!Args" and creating the corresponding
+"$Syms". It then searches the body of the macro being defined for any
+additional "$Syms". All the "$Syms" are then bound to :{box}es in the
+expansion. Finally - when the defined macro is called (hence the nested
+backquotes) - the result of evaluting the provided "!Args" are bound
+to the $sym :{box}es.
+
+In other words, :{mac!} creates a bunch of variable bindings in the macro
+it defines (some of which are are finally filled in during /{that} macro's
+run-time) to provide a convenient way of handling variable capture
+and execution when writing macros.
+6{defunits}
+(see
+^{https://letoverlambda.com/index.cl/guest/chap5.html#sec_2 Section 5.2}
+of Let Over Lambda)
+:{defunits} was shown earlier, but here it is again.
+:{
+
+   (mac defunits (Quantity Base . Units)
+      `(mac! ,(symb 'unit-of- Quantity) (!Val !Unit)
+         `(* ,,$Val
+            (case ,,$Unit
+               (,Base 1)
+               ,@(mapcar
+                     ~(qfn (X)
+                        `(,(car X)
+                           ,(defunits-chaining
+                              (car X)
+                                 (cons
+                                    (quasiquote `(,Base 1))
+                                    (groups 2 Units) ) ) ) )
+                     (groups 2 Units) ) ) ) ) )
+
+   (de defunits-chaining (U Units)
+      (let Spec (assoc U Units)
+         (ifn Spec
+            (prinl (text "Unknown unit @1" U))
+            (let Chain (cadr Spec)
+               (if (pair Chain)
+                  (* (car Chain)
+                     (defunits-chaining
+                        (cadr Chain)
+                        Units ) )
+                  Chain ) ) ) ) )
+
+}
+:{defunits} is a macro used to define relationships between similar
+types of quantities (e.g. quantities of time - seconds, minutes, days,
+milliseconds, etc.)
+:{
+
+   : (defunits time s
+         m 60        # minutes
+         h (60 m)    # hours
+         d (24 h)    # days
+         y (365 d)   # years
+         C (100 y)   # centuries
+         M (10 C) )  # millenia
+   -> unit-of-time
+
+   # 10,000 millenia  is a lot of seconds
+   : (unit-of-time 10000 'M)
+   -> 315360000000000
+
+   : (defunits distance-lol in
+         ft 12
+         yd (3 ft)
+         fathom (2 yd)
+         mile (5280 ft)
+         rod (15 ft)
+         furlong (40 rod)
+         chain (4 rod)
+         league (3 mile)
+         cubit 18 )
+   -> unit-of-distance-lol
+
+   : (+ (unit-of-distance-lol 156 'rod)
+        (unit-of-distance-lol 17  'league)
+        (unit-of-distance-lol 3   'cubit) )
+   -> 3259494 # inches
+
+}
+Nested backquotes allow for general patterns like this:
+
+/{You're writing a macro (the parent) that writes a macro (the child)
+and you need to refer to the (future) run-time arguments of the child
+macro right now (in the definition of the parent).}
+
+More specifically, :{defunits} is a macro that writes another macro
+(:{unit-of-[quantity]}) that captures user-defined relationships as
+basic multiplication (using a 'case' statement). That's a fancy way of
+saying there are 60 seconds in a minute and in order to find out how
+many seconds are in 17 minutes we need to multiply (* 17 60).
+
+Right now, however, we're writing a macro that defines another macro which
+defines relationships between (as-of-now) unknown
+quantities. But we know that whatever they are, we want to multiply them
+to get to some number of some base unit. So we use nested backquotes
+(and "stacked" unquotes) to name these abstract somethings and write
+code with them now.
+
+As a catchphrase:
+
+/{"when a macro-writing (parent) macro has run-time arguments (from the
+child) to use, nested backquotes will do!"}
