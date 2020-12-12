@@ -271,7 +271,7 @@ Using :{leq}, the definition of :{macro} becomes
 Now that is a concise piece of code! And once again, because
 :{leq} is a read-macro that transforms the raw list structure, this
 definition is the same as the previous few.
-4{writing macros}
+4{writing new macros}
 :{mac} can be used to define macros (in mfiles).
 :{
 
