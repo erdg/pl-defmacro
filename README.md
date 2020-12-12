@@ -207,7 +207,7 @@ which (if desired) can be `eval`ed.
 
 ### defmacro
 
-Using `cl-back-quote-form` we could write a hybrid PicoLisp / Common Lisp macro like so.
+Using `quasiquote` we could write a hybrid PicoLisp / Common Lisp macro like so.
 
 ```
 (de aif% Lst
