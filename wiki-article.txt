@@ -1,9 +1,20 @@
 2{Metaprogramming Experiments in PicoLisp}
 I was playing around with ^{https://github.com/erdg/pl-defmacro Common
-Lisp macros in PicoLisp}. It was mostly a joke, but it got me thinking.
-I find :{quasiquote} to be such a wonderful DSL for list interpolation
-and macro writing. What would it take to implement "native"
-quasiquote-style macros in Picoisp?
+Lisp macros in PicoLisp} (link also contains the code for this article).
+To follow along,
+:{
+   $ git clone https://github.com/erdg/pl-defmacro.git
+   $ cd pl-defmacro
+   $ pil m.l +
+   : (mload "mac.m.l")
+   : (load  "mac.tests.l")
+   mac.m.l -- all tests passed
+   -> T
+}
+
+It was mostly a joke, but it got me thinking.  I find :{quasiquote} to
+be such a wonderful DSL for list interpolation and macro writing. What
+would it take to implement "native" quasiquote-style macros in Picoisp?
 
 The problem is that both backquote :{`} and comma :{,} are aleady
 read-macros in PicoLisp. So /{technically} I don't want to be
@@ -78,7 +89,7 @@ symbols is then :{transform}ed into a list of actual PicoLisp code.
 
 }
 :{_transform} simply recurses over the list to create a copy. Anytime
-:{`} or :{,} is encountered, :{sym} is called so it remains a transient
+:{`} or :{,} or :{,@} is encountered, :{sym} is called so it remains a transient
 symbol. The resulting list is :{glue}ed together with spaces to create a
 string. The string is converted to a list with :{any} and all forms in
 the :{cdr} (discard the dummy function :{m}) are :{eval}ed.
@@ -278,7 +289,7 @@ definition is the same as the previous few.
       `(let it ,Test
             (if it ,Then ,Else) ) )
 
-   # NOTE - 'aif' is merely an example macro and  would never be used in
+   # NOTE - 'aif' is merely an example macro and would never be used in
    # picolisp because the same functionality exists in the built-in
    # 'if'
 
@@ -316,7 +327,7 @@ different way of writing picolisp :{macro}s. It turns out that a "macro
 compiler" can be written which turns "eval quasiquote" macros into
 normal picolisp :{macro}s by "precomputing" the translation.
 
-Well :{quasiquote} does exactly this!
+Well :{quasiquote} does exactly this! Looking at the definition,
 :{
 
    (de quasiquote Lst
@@ -325,7 +336,7 @@ Well :{quasiquote} does exactly this!
             (^(macro (_quasiquote ^ Lst))) ) ) )
 
 }
-The translation happens in two parts.  First :{quasiquote} passes the
+the translation happens in two parts.  First :{quasiquote} passes the
 list to the internal function :{_quasiquote}
 :{
 
