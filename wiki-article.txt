@@ -170,7 +170,7 @@ and using :{macro} on a /{quoted} list is the same as :{quasiquote}.
 }
 With mfiles and the macro repl in place, it's time to bootstrap a useful
 macro-writing environment!
-4{macro-writing macros}
+4{mac - the macro-writing macro}
 :{mac} is the PicoLisp (macro language) equivalent of Common Lisp's
 :{defmacro}.
 :{
