@@ -6,7 +6,7 @@ and macro writing. What would it take to implement "native"
 quasiquote-style macros in Picoisp?
 
 The problem is that both backquote :{`} and comma :{,} are aleady
-read-macros in PicoLisp. Which means /{technically} I don't want to be
+read-macros in PicoLisp. So /{technically} I don't want to be
 writing PicoLisp code anymore - I want to be writing code in a language
 that is /{mostly} PicoLisp, except that :{`} and :{,} (and consequently
 :{,@}) behave as if I was writing Common Lisp code.
