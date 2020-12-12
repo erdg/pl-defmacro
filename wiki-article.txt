@@ -1,12 +1,8 @@
 2{Metaprogramming Experiments in PicoLisp}
-I was playing around with ^{https://github.com/erdg/pl-defmacro Common
-Lisp macros in PicoLisp}. (link also contains the code for this article)
-
-To follow along,
 :{
 
    $ git clone https://github.com/erdg/pl-defmacro.git
-   $ cd pl-defmacro
+   $ cd pl-defmacro/
    $ pil m.l +
    : (mload "mac.m.l")
    : (load  "mac.tests.l")
@@ -14,23 +10,27 @@ To follow along,
    -> T
 
 }
-It was mostly a joke, but it got me thinking.  I find :{quasiquote} to
-be such a wonderful DSL for list interpolation and macro writing. What
-would it take to implement "native" quasiquote-style macros in Picoisp?
+I was playing around with
+^{https://github.com/erdg/pl-defmacro#pl-defmacro Common Lisp macros in
+PicoLisp}. It was mostly a joke, but it got me thinking.  I find
+:{quasiquote} to be such a wonderful DSL for list interpolation and
+macro writing. What would it take to implement "native" quasiquote-style
+macros in Picoisp? (i.e. without using transient symbols, as in the link
+above)
 
 The problem is that both backquote :{`} and comma :{,} are aleady
 read-macros in PicoLisp. So /{technically} I don't want to be
 writing PicoLisp code anymore - I want to be writing code in a language
 that is /{mostly} PicoLisp, except that :{`} and :{,} (and consequently
 :{,@}) behave as if I was writing Common Lisp code.
-
+4{the picolisp macro language}
 Let's call this new language the PicoLisp /{macro language}. Macro
-language code lives in :{.m.l} files. By convention all code in "mfiles"
-is contained in one top-level call to :{m}.
-4{mfiles}
+language code lives in :{.m.l} files. By convention all code in an
+"mfile" is contained in one top-level call to :{m}.
+6{mfiles}
 :{
 
-   # square.m.l
+   # 'square.m.l'
    (m
       (mac square (X) `(,X ,X))
       ...
@@ -40,8 +40,8 @@ is contained in one top-level call to :{m}.
 mfiles are loaded into PicoLisp with the function :{mload}.
 :{
 
-   : (mload "square.m.l")
-   -> square
+   : (mload "square.m.l")  # no need for this step
+   -> square               # if "following along"
    : (square 3)
    -> 9
 
@@ -96,7 +96,7 @@ symbol. The resulting list is :{glue}ed together with spaces to create a
 string. The string is converted to a list with :{any} and all forms in
 the :{cdr} (discard the dummy function :{m}) are :{eval}ed.
 
-To break it down,
+To break it down:
 :{
 
    # code in square.m.l
@@ -127,13 +127,15 @@ To break it down,
    -> 81
 
 }
-So that's how mfiles are loaded into PicoLisp.
-4{m1 - the (one-shot) macro repl}
+6{m1 - the (one-shot) macro repl}
+If mfiles are a layer over normal PicoLisp files to allow "native" use
+of quasiquote forms, a "macro repl" would be a layer over the normal
+PicoLisp repl.
 :{
 
    : (m1)
    m1 -- the macro repl
-   : (let X 2 (quasiquote `(* ,X ,X)))^  # "hat" to end
+   : (let X 2 (quasiquote `(* ,X ,X)))^  # hat '^' to end
    -> (* 2 2)
    -> NIL   # no idea why there are two "returns"
 
@@ -144,7 +146,7 @@ The macro repl is easy to implement in PicoLisp.
    (de m1 ()
       (prinl "m1 -- the macro repl")
       (prin  ": ")
-      (let M (till '^)  # '^' to end
+      (let M (till '^)  # hat '^' to end
          (prog
             (out (tmp "mrepl") (prin M))
             (eval (transform (mread (tmp "mrepl"))) ) ) ) )
@@ -200,9 +202,9 @@ macro-writing environment!
 }
 This is fine, but there's a lot of noise in the definition. Let's clean
 it up a bit.
-6{read-macros}
+6{read-macros to the rescue}
 The :{evq} read-macro was created because :{(eval (quasiquote ...))} is such
-a common pattern.
+a common pattern. With :{evq}, the definition of :{mac} becomes:
 :{
 
    (de mac Lst
@@ -215,7 +217,7 @@ a common pattern.
 }
 Much more concise.
 
-Here's the definition of :{evq},
+Here's the definition of :{evq}:
 :{
 
    # normal picolisp code
@@ -228,8 +230,8 @@ Here's the definition of :{evq},
 
 }
 It transforms :{(evq ...)} into :{(eval (quasiquote ...))} as the code
-is read in.  As such, the previous two definitions of :{mac} are
-identical as far as the picolisp interpreter is concerned.
+is /{read}. As such, the previous two definitions of :{mac} are
+identical as far as the PicoLisp interpreter is concerned.
 
 Note that :{evq} returns a list wrapped in an extra layer of parens.
 This is because the tilde :{~} read-macro is used to /{splice} it in.
@@ -241,7 +243,7 @@ Another common pattern is :{(let [...] (eval (quasiquote ...)))}.
 express quasiquote macros with variable bindings using the same syntax
 as :{let}.
 
-The implementation of :{leq} is
+Here's the definition of :{leq}:
 :{
 
    # normal picolisp code
@@ -268,7 +270,7 @@ It works the same as the :{evq} read-macro, but requires some extra
 processing of arguments to correctly parse the (possibly unquoted) 'let'
 args and body
 
-Using :{leq}, the definition of :{macro} becomes
+Using :{leq}, the definition of :{macro} becomes:
 :{
 
    # macro language code
@@ -280,12 +282,14 @@ Using :{leq}, the definition of :{macro} becomes
                ,@Body) ) ) )
 
 }
-Now that is a concise piece of code! And once again, because
+Now /{that} is a sharp piece of code! And once again, because
 :{leq} is a read-macro that transforms the raw list structure, this
 definition is the same as the previous few.
 4{writing new macros}
 :{mac} can be used to define macros (in mfiles).
 :{
+
+   # macro language code
 
    (mac aif (Test Then Else)
       `(let it ,Test
@@ -301,36 +305,42 @@ to the result of the :{Test} expression so it can be refered to without
 having to explicitly create new variables.
 :{
 
-      (de add2-safe (N)
-         (aif (num? N)
-            (+ 2 it)
-            (prinl "ERROR - " it " is NOT a number")) )
+   # normal picolisp code
+
+   (de add2-safe (N)
+      (aif (num? N)
+         (+ 2 it)
+         (prinl "ERROR - " it " is NOT a number")) )
 
 }
-as expected, the definition of :{aif} has the :{(eval (quasiquote ...))}
-pattern
+As expected, the definition of :{aif} has the :{(eval (quasiquote ...))}
+pattern:
 :{
 
-      (Lst
-         (let ((Test Then Else) Lst)
-            (eval
-               (quasiquote
-                  "`"(let it "," Test
-                        (if it "," Then "," Else) ) ) ) ) )
+   # normal picolisp code, transformed from macro language
+
+   : (pretty aif)
+   (Lst
+      (let ((Test Then Else) Lst)
+         (eval
+            (quasiquote
+               "`"(let it "," Test
+                     (if it "," Then "," Else) ) ) ) ) )
 
 }
 4{mc - the macro compiler}
-If :{aif} is going to be used heavily (say to "add2cents-safely" to like
-50 billion bank transactions a day), a serious run-time performance hit
-will be taken. :{eval} and :{quasiquote} are pretty expensive
-operations.  But there's nothing in :{aif}'s run-time code that will
+If :{aif} is going to be used heavily, a serious run-time performance
+hit will be taken. :{eval} and :{quasiquote} are pretty expensive
+operations. But there's nothing in :{aif}'s run-time code that will
 require :{quasiquote}. Remember that "eval quasiquote" forms are just a
-different way of writing picolisp :{macro}s. It turns out that a "macro
+different way of writing PicoLisp :{macro}s. It turns out that a "macro
 compiler" can be written which turns "eval quasiquote" macros into
-normal picolisp :{macro}s by "precomputing" the translation.
+normal PicoLisp :{macro}s by "precomputing" the translation.
 
-Well :{quasiquote} does exactly this! Looking at the definition,
+Well this is exactly what :{quasiquote} does! Looking at the definition,
 :{
+
+   # normal picolisp code
 
    (de quasiquote Lst
       (macro
@@ -347,22 +357,25 @@ list to the internal function :{_quasiquote}
             (if it "," Then "," Else) ) )
 
 }
-:{_quasiquote} does the actual transformation on the raw list structure
-(see ^{https://github.com/erdg/pl-defmacro/blob/master/quasiquote.l" source}). At
-this point nothing has been evaluated and :{_quasiquote} returns the
-translation
+:{_quasiquote} does the actual transformation on the raw list structure.
+(see ^{https://github.com/erdg/pl-defmacro/blob/master/quasiquote.l#L28"
+source} or ^{https://github.com/erdg/pl-defmacro#quasiquote
+explanation}) At this point nothing has been evaluated and
+:{_quasiquote} returns the translation
 :{
 
    '(let it ^ (list Test)
       (if it ^ (list Then) ^ (list Else)) )
 
 }
-:{quasiquote} then passes this list to :{macro} to fill in the values. The
-translation (:{_quasiquote}) is distinct from the execution (:{quasiquote}),
-and thus can be "precomputed" and the macro can be redefined.
+:{quasiquote} then passes this list to :{macro} to fill in the values.
+The translation (:{_quasiquote}) is distinct from the execution
+(:{quasiquote}), and thus can be "precomputed" and the macro can be
+redefined.
 
-This is exactly what :{mc} (the macro compiler) does. The idea is to pipe
-the macro definition
+Which is what :{mc} (the macro compiler) does. (see
+^{https://github.com/erdg/pl-defmacro/blob/master/m.l#L113 source}) The
+idea is to pipe the macro definition
 :{
 
    (eval
@@ -371,8 +384,8 @@ the macro definition
                (if it "," Then "," Else) ) ) )
 
 }
-to low-level :{read} to transform "eval quasiquote" forms into "macro _quasiquote" forms with a
-backquote readmacro, like so
+to low-level :{read} to transform :{(eval (quasiquote ...))} forms into
+:{(macro `(_quasiquote ...))}" forms (with a backquote :{`} read-macro), like so
 :{
 
    (macro
@@ -381,7 +394,7 @@ backquote readmacro, like so
                (if it "," Then "," Else) ) ) )
 
 }
-then bring this back to PicoLisp so the backquote readmacro fires
+bring /{this} back to PicoLisp so the backquote read-macro fires
 :{
 
    (macro
@@ -389,8 +402,9 @@ then bring this back to PicoLisp so the backquote readmacro fires
          (if it ^ (list Then) ^ (list Else)) )
 
 }
-pipe /{that} back to low-level :{read} to remove the quotes from the :{macro}
-lists and finally bring it back to PicoLisp again where it can run like normal
+pipe /{that} back to low-level :{read} to remove the quotes from the
+:{macro} lists and finally bring it back to PicoLisp again where it can
+run like normal
 :{
 
    (macro
@@ -398,25 +412,40 @@ lists and finally bring it back to PicoLisp again where it can run like normal
          (if it ^ (list Then) ^ (list Else)) )
 
 }
-
-:{mc} can be used to (re)define a compiled version of a macro
+6{compiled macros}
+:{mc} can be used to define a compiled version of a macro
 :{
 
-   (def 'aifc (mc aif))
+   : (def 'aifc (mc aif))
+   -> aifc
 
-   # or
+   : (pretty aif)
+   (Lst
+      (let ((Test Then Else) Lst)
+         (eval
+            (quasiquote
+               "`"(let it ","Test
+                     (if it "," Then "," Else) ) ) ) ) )
 
-   (def 'aif (mc aif))
+   : (pretty aifc)
+   (Lst
+      (let ((Test Then Else) Lst)
+         (macro
+            (let it ^ (list Test)
+               (if it ^ (list Then) ^ (list Else)) ) ) ) )
+
 
 }
-Compiled macros tend to be an order of magnitude faster.
+Compiled macros are an order of magnitude faster.
 :{
 
-   : (bench (do 1000000 (aif (+ 2 2) (+ 4 it))))
-   -> roughly 10 seconds
+   : (bench (do 1000000 (aif (+ 1 2) (+ 3 it))))
+   2.646 sec
+   -> 6
 
-   : (bench (do 1000000 (aifc (+ 2 2) (+ 4 it))))
-   -> roughly 1 second
+   : (bench (do 1000000 (aifc (+ 1 2) (+ 3 it))))
+   0.308 sec
+   -> 6
 
 }
 The compiler could be improved by further "compiling" to more efficient
@@ -424,7 +453,7 @@ forms that don't use :{macro}, but that is beyond the scope of this
 article.
 4{thoughts so far}
 So what's the point of all this? Ostensibly, it allows the use of a more
-convenient syntax for code transformations
+convenient syntax for code transformations.
 :{
 
    # write this
@@ -442,7 +471,7 @@ convenient syntax for code transformations
 
 }
 While it's not much of an improvement for such a simple macro, it does
-make it easy to write more complex macros
+make it easy to write more complex macros.
 :{
 
    (mac defunits (Quantity Base . Units)
@@ -461,15 +490,14 @@ make it easy to write more complex macros
                      (groups 2 Units) ) ) ) ) )
 
 }
-It could be argued whether or not such "macros" have any place in
-picolisp...
+It could be argued whether such "macros" have any place in PicoLisp...
 
 So maybe more realistically, the point of all this is to show just how
 flexible and powerful PicoLisp is. A pretty impressive (toy) Common Lisp
 Macro System can be added to PicoLisp with roughly 300 lines of code.
 
-(NOTE - the following sections are a PicoLisp translation of
-:{defmacro/g!} and :{defmacro!} from Doug Hoyte's book,
+(NOTE - the following sections offer PicoLisp translations of
+:{defmacro/g!}, :{defmacro!} and :{defunits} from Doug Hoyte's book,
 ^{https://letoverlambda.com Let Over Lambda})
 4{macros and multiple evaluation}
 Let's return to our first macro, :{square}
@@ -492,7 +520,7 @@ but unexpected things start happening when side-effects are involved.
    -> 12                            # -_-
 
 }
-Looking at the compiled version of square
+Looking at the compiled version of square,
 :{
 
    : (pretty (mc square))
@@ -513,11 +541,11 @@ instead of the expected
    : (square 3)
 
 }
-One possible workaround is to introduce a new anonymous symbol (with
+One possible solution is to introduce a new anonymous symbol (with
 :{box}) and then bind the argument :{X} to it.
 :{
 
-   (mac square-less-buggy (X)
+   (mac square (X)
       (let $X (box)
          `(let ,$X ,X
             (* ,$X ,$X) ) ) )
@@ -566,13 +594,13 @@ given the symbol. Make it happen.}
 (see ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_5 Section
 3.5} in Let Over Lambda)
 
-Note that this macro was named :{mac$} because anonymous
+(NOTE - this macro was named :{mac$} because anonymous
 symbols (:{box}es) are visually represented as e.g. :{$177389156348275}
-in PicoLisp.
+in PicoLisp)
 4{nested backquotes}
 This idea of "automatic boxes" can be taken a step further. (see
 ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_6 Section 3.6}
-of Let Over Lambda for a detailed explanation)
+of Let Over Lambda)
 6{mac!}
 :{
 
@@ -605,19 +633,19 @@ of Let Over Lambda for a detailed explanation)
       (mapcan list Xs Ys) )
 
 }
-:{mac!} is used like this,
+:{mac!} is used like this:
 :{
 
   (mac! square (!X)    # args prefixed with '!' are evaluated once only
      `(* ,$X ,$X) )    # and referred to as prefixed with '$'
 
 }
-:{mac!} does this by gathering the "!Args" and creating the corresponding
-"$Syms". It then searches the body of the macro being defined for any
-additional "$Syms". All the "$Syms" are then bound to :{box}es in the
-expansion. Finally - when the defined macro is called (hence the nested
-backquotes) - the result of evaluting the provided "!Args" are bound
-to the $sym :{box}es.
+:{mac!} accomplishes this by gathering the :{!Args} and creating the
+corresponding :{$Syms}. It then searches the body of the macro being
+defined for any additional :{$Syms}. All the :{$Syms} are then bound to
+:{box}es in the expansion. Finally - when the defined macro is called
+(hence the nested backquotes) - the result of evaluting the provided
+:{!Args} are bound to the :{box}es.
 
 In other words, :{mac!} creates a bunch of variable bindings in the macro
 it defines (some of which are are finally filled in during /{that} macro's
@@ -704,7 +732,7 @@ macro right now (in the definition of the parent).}
 
 More specifically, :{defunits} is a macro that writes another macro
 (:{unit-of-[quantity]}) that captures user-defined relationships as
-basic multiplication (using a 'case' statement). That's a fancy way of
+basic multiplication (using a :{case} statement). That's a fancy way of
 saying there are 60 seconds in a minute and in order to find out how
 many seconds are in 17 minutes we need to multiply :{(* 17 60)}.
 
@@ -719,3 +747,22 @@ As a catchphrase:
 
 /{"when a macro-writing (parent) macro has run-time arguments (from the
 child) to use, nested backquotes will do!"}
+6{differences to common lisp}
+Regarding (nested) backquotes - each :{quasiquote} call "removes" only
+one backquote (typically the :{car} of :{Lst}), while processing "one
+level" of 'unquote' and 'unqoute-splice's (nested arbitrarily deep) in
+:{Lst}.
+:{
+
+   : (m1)
+   m1 -- the macro repl
+   : (let X 2
+      (quasiquote
+         `(* ,X `(+ ,,X ,@(3 4 5))) ) )
+
+   -> (* 2 "`"(+ ","X 3 4 5))
+
+}
+It is what it is, I guess. Seems easy enough to reason about and still
+allows for nested backquote macros that work as expected (though the
+exact syntax differs from common lisp).
