@@ -369,7 +369,7 @@ backquote readmacro, like so
                (if it "," Then "," Else) ) ) )
 
 }
-bring this back to lisp so the backquote readmacro fires
+then bring this back to PicoLisp so the backquote readmacro fires
 :{
 
    (macro
@@ -410,11 +410,11 @@ Compiled macros tend to be an order of magnitude faster.
 The compiler could be improved by further "compiling" to more efficient
 forms that don't use :{macro}, but that is beyond the scope of this
 article.
-4{Final Thoughts}
-So what's the point of all this? Ostensibly it allows the use of a more
+4{thoughts so far}
+So what's the point of all this? Ostensibly, it allows the use of a more
 convenient syntax for code transformations
 :{
-   
+
    # write this
    (mac aif (Test Then Else)
       `(let it ,Test
