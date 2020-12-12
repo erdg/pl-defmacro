@@ -88,11 +88,11 @@ It sure would.
 (de alist-expand (Args Syms)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   (alist-expand (cdr Args)
                      (append Syms (list Sym)) ) ) ) )
-      (cl-backquote-form
+      (quasiquote
          "`"(list ",@"Syms) ) ) )
 ```
 
@@ -106,11 +106,11 @@ And how about an anaphoric version of `+`? You betcha!
 (de a+expand (Args Syms)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   ","(a+expand (cdr Args)
                         (append Syms (list Sym)) ) ) ) )
-      (cl-backquote-form
+      (quasiquote
          "`"(+ ",@"Syms) ) ) )
 ```
 
@@ -127,7 +127,7 @@ Notice the code duplication between the definitions of `alist` and `a+`. Wouldn'
 (de anaphex (Args Expr)
    (if Args
       (let Sym (box)
-         (cl-backquote-form
+         (quasiquote
             "`"(let [","Sym ","(car Args)  it ","Sym]
                   ","(anaphex (cdr Args)
                         (append Expr (list Sym)) ) ) ) )
@@ -171,21 +171,21 @@ This version of `defanaph` can be used on any function, so long as that function
 
 ## Explanation
 
-### cl-backquote-form
+### quasiquote
 
-`cl-backquote-form` does the heavy lifting for `defmacro`. It allows to use the Common Lisp backquote idiom for list interpolation within PicoLisp code.
+`quasiquote` does the heavy lifting for `defmacro`. It allows to use the Common Lisp backquote idiom for list interpolation within PicoLisp code.
 
 ```
 : (let [X 2  L (3 4 5)]
-   (cl-backquote-form
+   (quasiquote
       "`"(let Y ","X
             (+ Y ",@"L) ) ) )
 -> (let Y 2 (+ Y 3 4 5)
 ```
 
-`cl-backquote-form` accomplishes this by a bunch of `macro` hacking (see source). The basic premise is to use a `macro` to transform a backquote form (see `_walk`) into the standard PicoLisp `macro` idioms (`^` splicing, etc.) and pass _that_ to `macro` again for the substitutions.
+`quasiquote` accomplishes this by a bunch of `macro` hacking (see source). The basic premise is to use a `macro` to transform a backquote form (see `_quasiquote`) into the standard PicoLisp `macro` idioms (`^` splicing, etc.) and pass _that_ to `macro` again for the substitutions.
 
-So the above a `cl-backquote-form` call is transformed to
+So the above a `quasiquote` call is transformed to
 
 ```
 (let [X 2  L (3 4 5)]
@@ -215,7 +215,7 @@ Using `cl-back-quote-form` we could write a hybrid PicoLisp / Common Lisp macro 
 (de aif% Lst
    (let [(Test Then Else) Lst]
       (eval
-         (cl-backquote-form
+         (quasiquote
             "`"(let it ","Test
                   (if it ","Then" ","Else) ) ) ) ) )
 ```
@@ -229,7 +229,7 @@ And that would be fine.
 
 But after you write a couple macros in this style you realize that most of it is boilerplate code.
 
-PicoLisp macros tend to use a variable number of unevaluated arguments (`Lst` in the example above). The `let` form destructures this list to the named parameters we are going to use in our macro. And then we `eval` a `cl-backquote-form` with the parameters filled in.
+PicoLisp macros tend to use a variable number of unevaluated arguments (`Lst` in the example above). The `let` form destructures this list to the named parameters we are going to use in our macro. And then we `eval` a `quasiquote` with the parameters filled in.
 
 `defmacro` simply writes the boilerplate code for us. If we look at the definition of `defmacro`, we can see the similarities to the definition of `aif%` above.
 
@@ -240,7 +240,7 @@ PicoLisp macros tend to use a variable number of unevaluated arguments (`Lst` in
          (de @Nm Lst
             (let [@Args Lst]
                (eval
-                  (cl-backquote-form ^ Body) ) ) ) ) ) )
+                  (quasiquote ^ Body) ) ) ) ) ) )
 ```
 
 Everything has just been pulled up a level. `defmacro` expects the name, arguments and body of the macro we're defining and plugs them into a `de` form for us, just like the explicit version of `aif%` above.
