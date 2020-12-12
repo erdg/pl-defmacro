@@ -1,8 +1,10 @@
 2{Metaprogramming Experiments in PicoLisp}
 I was playing around with ^{https://github.com/erdg/pl-defmacro Common
-Lisp macros in PicoLisp} (link also contains the code for this article).
+Lisp macros in PicoLisp}. (link also contains the code for this article)
+
 To follow along,
 :{
+
    $ git clone https://github.com/erdg/pl-defmacro.git
    $ cd pl-defmacro
    $ pil m.l +
@@ -10,6 +12,7 @@ To follow along,
    : (load  "mac.tests.l")
    mac.m.l -- all tests passed
    -> T
+
 }
 
 It was mostly a joke, but it got me thinking.  I find :{quasiquote} to
