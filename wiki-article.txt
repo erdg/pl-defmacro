@@ -14,7 +14,6 @@ To follow along,
    -> T
 
 }
-
 It was mostly a joke, but it got me thinking.  I find :{quasiquote} to
 be such a wonderful DSL for list interpolation and macro writing. What
 would it take to implement "native" quasiquote-style macros in Picoisp?
@@ -562,7 +561,7 @@ for "$ symbols" and automatically creates :{box}es.
 As Doug Hoyte writes in Let Over Lambda, :{mac$} allows us to say:
 
 /{I want a [box] to be bound around this expression, and I've already
-given the symbol. Make it happen}
+given the symbol. Make it happen.}
 
 (see ^{https://letoverlambda.com/index.cl/guest/chap3.html#sec_5 Section
 3.5} in Let Over Lambda)
@@ -687,6 +686,9 @@ milliseconds, etc.)
          league (3 mile)
          cubit 18 )
    -> unit-of-distance-lol
+
+   # compile it
+   (def 'unit-of-distance-lol (mc unit-of-distance-lol))
 
    : (+ (unit-of-distance-lol 156 'rod)
         (unit-of-distance-lol 17  'league)
