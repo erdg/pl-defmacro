@@ -11,8 +11,6 @@ Write Common Lisp style macros in PicoLisp for fun and profit (but mostly for fu
 
 \**squints*\* Exactly the same!
 
-> **PLEASE NOTE** that GitHub thinks this repo is 75.8% Common Lisp code and 24.2% PicoLisp code :grin:
-
 ### Testing
 
 ```
