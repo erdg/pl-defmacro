@@ -500,7 +500,8 @@ Macro System can be added to PicoLisp with roughly 300 lines of code.
 :{defmacro/g!}, :{defmacro!} and :{defunits} from Doug Hoyte's book,
 ^{https://letoverlambda.com Let Over Lambda})
 4{macros and multiple evaluation}
-Let's return to our first macro, :{square}
+Let's return to our first macro, :{square} (actually :{square-buggy} if
+"following along")
 :{
 
    (mac square (X) `(* ,X ,X))
@@ -554,7 +555,7 @@ One possible solution is to introduce a new anonymous symbol (with
 This works as expected.
 :{
 
-   : (let Y 2 (square-less-buggy (inc 'Y)))
+   : (let Y 2 (square (inc 'Y)))
    -> 9
 
 }
