@@ -19,8 +19,7 @@ is contained in one top-level call to :{m}.
 
    # square.m.l
    (m
-      (mac square (X)
-         `(,X ,X) )
+      (mac square (X) `(,X ,X))
       ...
    )
 
@@ -208,11 +207,12 @@ Here's the definition of :{evq},
 :{
 
    # normal picolisp code
+
    (de eval-quasiquote Lst
       (macro
          '((eval (quasiquote ^ Lst))) ) )
 
-  (def 'evq eval-quasiquote)
+   (def 'evq eval-quasiquote)
 
 }
 It transforms :{(evq ...)} into :{(eval (quasiquote ...))} as the code
@@ -233,6 +233,7 @@ The implementation of :{leq} is
 :{
 
    # normal picolisp code
+
    (de let-eval-quasiquote Lst
       (let [(Args . Body) (leqargs Lst)]
          (macro
@@ -259,6 +260,7 @@ Using :{leq}, the definition of :{macro} becomes
 :{
 
    # macro language code
+
    (de mac Lst
       ~(leq [(Nm Args . Body) Lst]
          `(de ,Nm Lst
